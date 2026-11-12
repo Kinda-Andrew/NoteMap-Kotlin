@@ -3,6 +3,7 @@ package com.example.setupformaps
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -17,7 +18,7 @@ import com.example.setupformaps.location.LocationPermissions
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
-    private var hasLocationPermissions: Boolean = false;
+    private var locationEnabled: Boolean = false; //currently unused
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,13 +58,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (requestCode == 1){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                hasLocationPermissions = true;
-                println("Granted");
-                
+                locationEnabled = true;     Log.d("LocationDebug","Granted");
+                try { mMap.isMyLocationEnabled = true }
+                catch (e: SecurityException){ locationEnabled = false } //this shouldn't happen
             }
             else{
-                hasLocationPermissions = false;
-                println("Denied");
+                locationEnabled = false;    Log.d("LocationDebug","Denied");
             }
         }
     }
