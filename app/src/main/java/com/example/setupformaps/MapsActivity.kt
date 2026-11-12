@@ -14,15 +14,19 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.setupformaps.databinding.ActivityMapsBinding
 import com.example.setupformaps.location.LocationPermissions
+import com.example.setupformaps.user.Commuter
+import com.example.setupformaps.user.User
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
-    private var locationEnabled: Boolean = false; //currently unused
+    private lateinit var user : User
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        user = Commuter();
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -45,12 +49,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-
-        LocationPermissions.requestPermissions(this, 1);
+        if (LocationPermissions.isEnabled(this)) tryShowUserOnMap();
+        else LocationPermissions.requestPermissions(this, 1);
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray){
@@ -58,13 +58,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (requestCode == 1){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                locationEnabled = true;     Log.d("LocationDebug","Granted");
-                try { mMap.isMyLocationEnabled = true }
-                catch (e: SecurityException){ locationEnabled = false } //this shouldn't happen
-            }
-            else{
-                locationEnabled = false;    Log.d("LocationDebug","Denied");
+                Log.d("LocationDebug","Granted");
+                tryShowUserOnMap();
             }
         }
+    }
+
+    fun tryShowUserOnMap(){
+        try {
+            mMap.isMyLocationEnabled = true
+            val pos = user.getCommuterLocation();
+            if (pos != null)  mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
+        } catch (e: SecurityException){}
     }
 }
