@@ -18,7 +18,7 @@ import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-    private lateinit var mMap: GoogleMap
+    public lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private lateinit var user : User
 
@@ -26,7 +26,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        user = Commuter();
+        user = Commuter(this);
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -67,8 +67,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     fun tryShowUserOnMap(){
         try {
             mMap.isMyLocationEnabled = true
-            val pos = user.getCommuterLocation();
-            if (pos != null)  mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
+            user.moveCameraToCommuter(mMap);
         } catch (e: SecurityException){}
     }
 }
