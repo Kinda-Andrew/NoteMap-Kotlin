@@ -33,6 +33,12 @@ class Commuter(context: Context) : User() {
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun moveCameraToCommuter(map: GoogleMap){
+        val pos = lastLocation;
+        if (pos != null){
+            map.moveCamera(CameraUpdateFactory.newLatLng(pos));
+            return;
+        }
+
         client.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
             null

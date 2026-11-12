@@ -20,13 +20,10 @@ import com.example.setupformaps.user.User
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     public lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
-    private lateinit var user : User
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        user = Commuter(this);
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -67,7 +64,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     fun tryShowUserOnMap(){
         try {
             mMap.isMyLocationEnabled = true
-            user.moveCameraToCommuter(mMap);
+            user!!.moveCameraToCommuter(mMap);
         } catch (e: SecurityException){}
     }
 }
