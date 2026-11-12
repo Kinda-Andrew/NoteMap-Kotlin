@@ -1,5 +1,6 @@
 package com.example.setupformaps
 
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -11,11 +12,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.setupformaps.databinding.ActivityMapsBinding
+import com.example.setupformaps.location.LocationPermissions
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private var hasLocationPermissions: Boolean = false;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,5 +48,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val sydney = LatLng(-34.0, 151.0)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        LocationPermissions.requestPermissions(this, 1);
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray){
+        super.onRequestPermissionsResult(requestCode,  permissions, grantResults) //optional
+
+        if (requestCode == 1){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                hasLocationPermissions = true;
+                println("Granted");
+                
+            }
+            else{
+                hasLocationPermissions = false;
+                println("Denied");
+            }
+        }
     }
 }
