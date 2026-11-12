@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NoteMap_look_in_strings.xml</string>
+    <string name="title_activity_maps">NoteMap_look_in_strings.xml</string>
+    <string name="home_page_note_button">Click here</string>
+    <string name="hello_I_am_a_textview">Hello, I am a TextView</string>
+    <string name="hello_I_am_a_button">Hello, I am a Button</string>
+    <string name="hello_I_am_a_button_click_to_add_note">hello_i_am_a_button_click_to_add_note</string>
+    <string name="send_to_map">click to go to map</string>
+    <string name="hello_i_am_a_textview">i am text on page</string>
+</resources>
