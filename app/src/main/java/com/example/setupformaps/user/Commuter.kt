@@ -33,19 +33,21 @@ class Commuter(context: Context) : User() {
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    override fun getCommuterLocation(func: (LatLng) -> Unit) {
+    override fun getCommuterLocation(func: (LatLng?) -> Unit) {
         client.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
             null
         ).addOnSuccessListener {
-            location -> func(LatLng(location.latitude, location.longitude));
-        }
+            location ->
+                if (location == null) func(null)
+                else func(LatLng(location.latitude, location.longitude))
+        };
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     public fun updateUserPosition(){ //we really dont need this anymore. it's just easier to type
         getCommuterLocation { pos ->
-            lastLocation = LatLng(pos.latitude, pos.longitude);
+            if (pos != null)  lastLocation = LatLng(pos.latitude, pos.longitude);
         }
     }
 }

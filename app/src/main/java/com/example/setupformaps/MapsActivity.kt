@@ -65,7 +65,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         try {
             mMap.isMyLocationEnabled = true
             user!!.getCommuterLocation { pos ->
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(pos))
+                if (pos != null)  mMap.moveCamera(CameraUpdateFactory.newLatLng(pos))
             }
         } catch (e: SecurityException){}
     }
