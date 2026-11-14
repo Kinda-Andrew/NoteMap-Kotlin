@@ -64,7 +64,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     fun tryShowUserOnMap(){
         try {
             mMap.isMyLocationEnabled = true
-            user!!.moveCameraToCommuter(mMap);
+            user!!.getCommuterLocation { pos ->
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(pos))
+            }
         } catch (e: SecurityException){}
     }
 }

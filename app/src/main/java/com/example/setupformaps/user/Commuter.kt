@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.annotation.RequiresPermission
 import com.example.setupformaps.MapsActivity
 import com.example.setupformaps.location.Route
+import com.example.setupformaps.user
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -32,34 +33,19 @@ class Commuter(context: Context) : User() {
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    override fun moveCameraToCommuter(map: GoogleMap){
-        val pos = lastLocation;
-        if (pos != null){
-            map.moveCamera(CameraUpdateFactory.newLatLng(pos));
-            return;
-        }
-
+    override fun getCommuterLocation(func: (LatLng) -> Unit) {
         client.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
             null
-        ).addOnSuccessListener { location ->
-            if (location == null) return@addOnSuccessListener;
-
-            val pos = LatLng(location.latitude, location.longitude);
-            lastLocation = pos;
-
-            map.moveCamera(CameraUpdateFactory.newLatLng(pos));
+        ).addOnSuccessListener {
+            location -> func(LatLng(location.latitude, location.longitude));
         }
     }
 
-
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    public fun updateUserPosition(){
-        client.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            null
-        ).addOnSuccessListener { location ->
-            lastLocation = LatLng(location.latitude, location.longitude);
+    public fun updateUserPosition(){ //we really dont need this anymore. it's just easier to type
+        getCommuterLocation { pos ->
+            lastLocation = LatLng(pos.latitude, pos.longitude);
         }
     }
 }
