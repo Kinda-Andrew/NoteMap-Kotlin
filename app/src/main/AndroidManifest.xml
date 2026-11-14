@@ -33,7 +33,8 @@
             android:name=".MapsActivity"
             android:exported="true"
             android:label="@string/title_activity_maps"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize">
+        </activity>
         <activity
             android:name=".HomePageActivity"
             android:exported="true"
