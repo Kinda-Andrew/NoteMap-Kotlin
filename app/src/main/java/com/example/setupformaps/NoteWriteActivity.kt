@@ -24,10 +24,10 @@ class NoteWriteActivity : AppCompatActivity() {
         }
 
         noteInput = findViewById(R.id.noteInput)
-        
+
         val saveNote: Button = findViewById(R.id.saveNote)
         saveNote.setOnClickListener {
-            if (user != null) user!!.setCommuterNote(noteInput.getText().toString());
+            user!!.setCommuterNote(noteInput.getText().toString());
             val intent = Intent(this, HomePageActivity::class.java)
             startActivity(intent)
         }

@@ -54,6 +54,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode,  permissions, grantResults) //optional
 
         if (requestCode == 1){
+            // request code 1 indicates that location permissions were requested during MapsActivity start (this is completely arbitrary)
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 Log.d("LocationDebug","Granted");
                 tryShowUserOnMap();
@@ -63,10 +64,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun tryShowUserOnMap(){
         try {
-            mMap.isMyLocationEnabled = true
+            mMap.isMyLocationEnabled = true //enables the blue dot on the map that shows the user's location. If permissions are not enabled, this will throw an exception
             user!!.getCommuterLocation { pos ->
                 if (pos != null)  mMap.moveCamera(CameraUpdateFactory.newLatLng(pos))
-            }
+            } //requests commuter location, then moves the camera to that location when it becomes available
         } catch (e: SecurityException){}
     }
 }
