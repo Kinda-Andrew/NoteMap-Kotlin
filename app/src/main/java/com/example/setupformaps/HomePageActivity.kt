@@ -16,7 +16,7 @@ class HomePageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        user = Commuter(this);
+        if (user == null) user = Commuter(this);
 
         setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
