@@ -21,6 +21,12 @@ class Commuter(context: Context) : User() {
     private var note : String = "";
     private var route : Route? = null;
 
+    //string version of destination, before conversion to latlng
+    private var stringDestination : String = "";
+
+    override fun getStringDestination(): String { return stringDestination; }
+
+    override fun setStringDestination(stringDestination: String) {this.stringDestination = stringDestination; }
 
     override fun getCommuterNote(): String { return note; }
 
@@ -43,6 +49,7 @@ class Commuter(context: Context) : User() {
                 else func(LatLng(location.latitude, location.longitude))
         };
     }
+
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     public fun updateUserPosition(){ //we really dont need this anymore. it's just easier to type

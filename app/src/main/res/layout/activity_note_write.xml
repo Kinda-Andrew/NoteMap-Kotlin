@@ -17,5 +17,5 @@
         android:id="@+id/saveNote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save" />
+        android:text="@string/save" />
 </LinearLayout>

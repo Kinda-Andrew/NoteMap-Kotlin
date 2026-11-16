@@ -38,6 +38,13 @@ class HomePageActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        //assigns button to send to destination activity
+        val sendDestinationButton: Button = findViewById(R.id.destination_button_id)
+        sendDestinationButton.setOnClickListener {
+            val intent = Intent(this, DestinationWriteActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 }
 

@@ -1,11 +1,11 @@
 package com.example.setupformaps
 
 import android.content.pm.PackageManager
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -16,10 +16,21 @@ import com.example.setupformaps.databinding.ActivityMapsBinding
 import com.example.setupformaps.location.LocationPermissions
 import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
+import com.google.android.gms.maps.model.PolylineOptions
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     public lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+
+    //width of polyline displayed on map
+    private val ROUTE_STROKE_WIDTH_PX = 5
+
+    //test polyline coords
+    private val adelaideLatLng = LatLng(-34.92873, 138.59995)
+    private val darwinLatLng = LatLng(-12.4258647, 130.7932231)
+    private val melbourneLatLng = LatLng(-37.81319, 144.96298)
+    private val perthLatLng = LatLng(-31.95285, 115.85734)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +59,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (LocationPermissions.isEnabled(this)) tryShowUserOnMap();
         else LocationPermissions.requestPermissions(this, 1);
+
+    //send destination to tryShowUserOnMap() ? not sure best place to do it
+
+        googleMap.addPolyline(
+            PolylineOptions().apply {
+                add(adelaideLatLng, darwinLatLng, melbourneLatLng, perthLatLng)
+                width(ROUTE_STROKE_WIDTH_PX.toFloat())
+                color(Color.BLUE)
+            },
+        )
+
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray){
@@ -69,5 +92,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (pos != null)  mMap.moveCamera(CameraUpdateFactory.newLatLng(pos))
             } //requests commuter location, then moves the camera to that location when it becomes available
         } catch (e: SecurityException){}
+
+
+
+
+
     }
 }
