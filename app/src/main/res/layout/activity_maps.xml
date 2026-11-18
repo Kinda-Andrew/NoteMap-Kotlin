@@ -1,9 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
+
+<!-- changed to FragmentContainerView due to project error i encountered-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsActivity" />
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Button
+        android:id="@+id/home_button_id"
+        android:layout_width="155dp"
+        android:layout_height="62dp"
+        map:layout_constraintBottom_toBottomOf="parent"
+        map:layout_constraintStart_toStartOf="parent"
+        android:text="@string/Back_Pairing"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="654dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="25dp"/>
+
+    <Button
+        android:id="@+id/note_button_id"
+        android:layout_width="159dp"
+        android:layout_height="64dp"
+        map:layout_constraintBottom_toBottomOf="parent"
+        map:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/Make_Note"
+        tools:layout_editor_absoluteX="236dp"
+        tools:layout_editor_absoluteY="654dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginBottom="25dp"/>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MapsActivity"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="151dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
