@@ -7,17 +7,15 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.example.setupformaps.databinding.ActivityMapsBinding
 import com.example.setupformaps.location.LocationPermissions
-import com.example.setupformaps.user.Commuter
-import com.example.setupformaps.user.User
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     public lateinit var mMap: GoogleMap
@@ -26,6 +24,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        WindowCompat.getInsetsController(window, window.decorView).apply { //hide the navigation bar at the bottom of the screen
+            hide(WindowInsetsCompat.Type.navigationBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)

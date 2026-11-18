@@ -1,8 +1,6 @@
 package com.example.setupformaps
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
@@ -28,8 +26,7 @@ class NoteWriteActivity : AppCompatActivity() {
         val saveNote: Button = findViewById(R.id.saveNote)
         saveNote.setOnClickListener {
             user!!.setCommuterNote(noteInput.getText().toString());
-            val intent = Intent(this, HomePageActivity::class.java)
-            startActivity(intent)
+            onBackPressedDispatcher.onBackPressed()
         }
     }
 
