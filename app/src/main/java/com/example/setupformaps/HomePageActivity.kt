@@ -37,7 +37,6 @@ class HomePageActivity : AppCompatActivity() {
             val intent = Intent(this, NoteWriteActivity::class.java)
             startActivity(intent)
         }
-
     }
 }
 

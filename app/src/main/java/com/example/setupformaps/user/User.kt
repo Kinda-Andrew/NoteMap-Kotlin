@@ -10,6 +10,8 @@ abstract class User {
     public abstract fun setCommuterNote(note: String);
     public abstract fun getCommuterRoute() : Route?;
     public abstract fun getCommuterLocation() : LatLng?;
-    public abstract fun getCommuterLocation(func: (Location) -> Unit);
+    public abstract fun getCommuterLocation(func: (Location?) -> Unit);
+
+    public abstract fun update();
     //get commuter location (probably asynchronously), then do something with it
 }

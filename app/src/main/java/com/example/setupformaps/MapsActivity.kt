@@ -7,17 +7,16 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.example.setupformaps.databinding.ActivityMapsBinding
 import com.example.setupformaps.location.LocationPermissions
-import com.example.setupformaps.user.Commuter
-import com.example.setupformaps.user.User
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.google.android.gms.maps.model.LatLng
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     public lateinit var mMap: GoogleMap
@@ -26,6 +25,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        WindowCompat.getInsetsController(window, window.decorView).apply { //hide the navigation bar at the bottom of the screen
+            hide(WindowInsetsCompat.Type.navigationBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -82,11 +85,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     fun tryShowUserOnMap(){
         try {
             mMap.isMyLocationEnabled = true //enables the blue dot on the map that shows the user's location. If permissions are not enabled, this will throw an exception
-            user!!.getCommuterLocation { pos ->
+            user!!.getCommuterLocation { pos -> //requests commuter location, then moves the camera to that location when it becomes available
+                if (pos == null) return@getCommuterLocation
                 mMap.uiSettings.isZoomControlsEnabled = true; // here for navigational ease, adds the + and - options onto the bottom right of the map
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(pos.latitude, pos.longitude), 16f))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        pos!!.latitude,
+                        pos.longitude
+                    ), 16f))
                     // changed to animateCamera so zoom could be added, the higher the zoom the closer it zooms in
-            } //requests commuter location, then moves the camera to that location when it becomes available
+                Thread{
+                    user!!.update()
+                }.start()
+            }
         } catch (e: SecurityException){}
     }
 }
