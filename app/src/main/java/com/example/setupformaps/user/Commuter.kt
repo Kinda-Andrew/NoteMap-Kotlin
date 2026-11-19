@@ -4,13 +4,9 @@ import android.Manifest
 import android.content.Context
 import android.location.Location
 import androidx.annotation.RequiresPermission
-import com.example.setupformaps.MapsActivity
 import com.example.setupformaps.location.Route
-import com.example.setupformaps.user
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import java.util.PriorityQueue
 

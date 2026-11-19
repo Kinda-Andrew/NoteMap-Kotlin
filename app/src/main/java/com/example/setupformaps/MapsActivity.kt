@@ -84,7 +84,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.isMyLocationEnabled = true //enables the blue dot on the map that shows the user's location. If permissions are not enabled, this will throw an exception
             user!!.getCommuterLocation { pos ->
                 mMap.uiSettings.isZoomControlsEnabled = true; // here for navigational ease, adds the + and - options onto the bottom right of the map
-                if (pos != null)  mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pos, 16f))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(pos.latitude, pos.longitude), 16f))
                     // changed to animateCamera so zoom could be added, the higher the zoom the closer it zooms in
             } //requests commuter location, then moves the camera to that location when it becomes available
         } catch (e: SecurityException){}
