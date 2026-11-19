@@ -2,6 +2,7 @@ package com.example.setupformaps.location
 
 import com.google.android.gms.maps.model.LatLng
 
+//not implemented yet
 class Route ( 
     private var start: LatLng,
     private var destination: LatLng

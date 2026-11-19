@@ -17,6 +17,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
+//This activity is responsible for displaying the map,
+//as well as routing the user to note input and destination input
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     public lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
