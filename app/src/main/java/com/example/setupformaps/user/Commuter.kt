@@ -22,7 +22,7 @@ class Commuter(context: Context) : User() {
     private var client =  LocationServices.getFusedLocationProviderClient(context);
     private var lastLocation : LatLng? = null;
     private var locationSnapshots = PriorityQueue<Location>
-    { o1, o2 -> (o1.time - o2.time).toInt() }
+        { o1, o2 -> (o1.time - o2.time).toInt() }
     // sorted oldest to newest; discard expired snapshots
 
 
@@ -56,16 +56,32 @@ class Commuter(context: Context) : User() {
     public fun update(){ //run this on another thread while a route is active
         while (route != null) {
             val cutoff = System.currentTimeMillis() - IDLE_TIMEOUT*1000;
-            while (!locationSnapshots.isEmpty() && locationSnapshots.peek().time < cutoff){
-                locationSnapshots.poll(); //remove old snapshots
+            synchronized(locationSnapshots){
+                while (!locationSnapshots.isEmpty() && locationSnapshots.peek().time < cutoff){
+                    locationSnapshots.poll()
+                }
+            }
+
+            if (isUserIdle()){
+                // ...
             }
 
             getCommuterLocation { location ->
                 lastLocation = LatLng(location.latitude, location.longitude)
-                locationSnapshots.add(location);
+                synchronized(locationSnapshots){
+                    locationSnapshots.add(location)
+                }
             } // update location snapshots asynchronously
 
             Thread.sleep(UPDATE_FREQUENCY);
         }
+    }
+
+    private fun isUserIdle() : Boolean{  // could be public i guess
+        synchronized(locationSnapshots){
+            //try to draw a circle with an `IDLE_RADIUS` meter radius around all location snapshots
+
+        }
+        return false;
     }
 }
