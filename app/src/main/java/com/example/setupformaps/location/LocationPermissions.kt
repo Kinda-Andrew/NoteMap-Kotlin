@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
+//LocationPermissions is responsible for getting location data permission from the user
+//triggers a popup providing multiple options
 class LocationPermissions {
     companion object {
         public fun isEnabled(context: Context): Boolean{

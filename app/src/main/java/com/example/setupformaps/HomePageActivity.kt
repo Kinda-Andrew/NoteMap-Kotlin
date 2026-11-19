@@ -11,6 +11,10 @@ import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
 
 var user : User? = null;
+
+//Main Activity that opens on launch of the app
+//Eventually will contain options for commuter or caretaker
+//Once a route is finished, the commuter is returned here
 class HomePageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,14 +34,6 @@ class HomePageActivity : AppCompatActivity() {
                val intent = Intent(this, MapsActivity::class.java)
                startActivity(intent)
             }
-
-            //assigns button to send to note activity
-        val sendNoteButton: Button = findViewById(R.id.note_button_id)
-        sendNoteButton.setOnClickListener {
-            val intent = Intent(this, NoteWriteActivity::class.java)
-            startActivity(intent)
-        }
-
     }
 }
 
