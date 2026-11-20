@@ -1,5 +1,6 @@
 package com.example.setupformaps
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -12,10 +13,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.example.setupformaps.databinding.ActivityMapsBinding
-import com.example.setupformaps.location.LocationPermissions
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.example.setupformaps.application.Permissions
+import com.example.setupformaps.user.Commuter
 
 //This activity is responsible for displaying the map,
 //as well as routing the user to note input and destination input
@@ -66,16 +68,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        if (LocationPermissions.isEnabled(this)) tryShowUserOnMap();
-
-        else LocationPermissions.requestPermissions(this, 1);
+        if (Permissions.request(Manifest.permission.ACCESS_FINE_LOCATION, Permissions.MAP_STARTUP_REQUEST_CODE, this)) tryShowUserOnMap();
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray){
         super.onRequestPermissionsResult(requestCode,  permissions, grantResults) //optional
 
-        if (requestCode == 1){
-            // request code 1 indicates that location permissions were requested during MapsActivity start (this is completely arbitrary)
+        if (requestCode == Permissions.MAP_STARTUP_REQUEST_CODE){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 Log.d("LocationDebug","Granted");
                 tryShowUserOnMap();
@@ -90,6 +89,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.uiSettings.isZoomControlsEnabled = true; // here for navigational ease, adds the + and - options onto the bottom right of the map
                 if (pos != null)  mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pos, 16f))
                     // changed to animateCamera so zoom could be added, the higher the zoom the closer it zooms in
+                Thread{ (user!! as Commuter).runUpdateLoop() }.start() // this should probably be done on route start
             } //requests commuter location, then moves the camera to that location when it becomes available
         } catch (e: SecurityException){}
     }
