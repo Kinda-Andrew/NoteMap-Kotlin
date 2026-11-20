@@ -68,6 +68,29 @@ class Commuter(context: Context) : User() {
     }
 
     /**
+     * Starts the commuter's update loop.
+     *
+     * This function should be called when a route is started.
+     * */
+    public fun onRouteStart(){
+        Thread{
+            try {
+                runUpdateLoop()
+            }
+            catch (e: SecurityException){}
+        }.start()
+    }
+
+    /**
+     * Sets the `route` to `null`, ending the commuter's update loop.
+     *
+     * This function should be called when the route is finished.
+     * */
+    public fun onRouteEnd(){
+        this.route = null; //kills the update loop (well, it will when we change the loop condition)
+    }
+
+    /**
      * The update loop does the following tasks every `UPDATE_FREQUENCY` milliseconds:
      *  - Remove all snapshots older than `IDLE_TIMEOUT` from `locationSnapshots`
      *  - Send user a notification every `IDLE_TIMEOUT` seconds if they are idle
@@ -76,7 +99,7 @@ class Commuter(context: Context) : User() {
      * (This is meant to be called from another thread while a route is active)
      * */
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    public fun runUpdateLoop(){
+    private fun runUpdateLoop(){
         val notify = Notifications("idle", "idle");
         var startTimestamp = System.currentTimeMillis();
         while (true) { //change to `while (route != null)` later
