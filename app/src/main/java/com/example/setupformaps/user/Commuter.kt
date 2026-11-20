@@ -70,7 +70,8 @@ class Commuter(context: Context) : User() {
      *  - Remove all snapshots older than `IDLE_TIMEOUT` from `locationSnapshots`
      *  - Check if the user is idle
      *  - Request a location snapshot (updates `locationSnapshots` and `lastLocation` on success)
-     * (It is meant to be called from another thread while a route is active)
+     *
+     * (This is meant to be called from another thread while a route is active)
      * */
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     public fun runUpdateLoop(){
