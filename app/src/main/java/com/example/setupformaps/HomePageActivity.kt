@@ -16,9 +16,11 @@ import com.example.setupformaps.user.User
 var user : User? = null;
 lateinit var CONTEXT : Context;
 
-//Main Activity that opens on launch of the app
-//Eventually will contain options for commuter or caretaker
-//Once a route is finished, the commuter is returned here
+/**
+ * Main Activity that opens on launch of the app.
+ * Eventually will contain options for commuter or caretaker.
+ * Once a route is finished, the commuter is returned here.
+ * */
 class HomePageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +29,7 @@ class HomePageActivity : AppCompatActivity() {
         if (user == null) user = Commuter(this);
         CONTEXT = applicationContext;
 
-        Permissions.request(Manifest.permission.POST_NOTIFICATIONS, 2, this)
+        Permissions.request(Manifest.permission.POST_NOTIFICATIONS, 0, this)
 
         setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
