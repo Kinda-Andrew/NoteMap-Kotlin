@@ -1,12 +1,14 @@
 package com.example.setupformaps
 
 import android.content.Intent
+import android.location.Location
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.setupformaps.application.Permissions
 import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
 
@@ -21,6 +23,7 @@ class HomePageActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         if (user == null) user = Commuter(this);
+        Permissions.CONTEXT = applicationContext;
 
         setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
