@@ -3,7 +3,6 @@ package com.example.setupformaps.user
 import android.Manifest
 import android.content.Context
 import android.location.Location
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.example.setupformaps.application.Notifications
 import com.example.setupformaps.application.Permissions
@@ -71,7 +70,7 @@ class Commuter(context: Context) : User() {
     /**
      * The update loop does the following tasks every `UPDATE_FREQUENCY` milliseconds:
      *  - Remove all snapshots older than `IDLE_TIMEOUT` from `locationSnapshots`
-     *  - Check if the user is idle
+     *  - Send user a notification every `IDLE_TIMEOUT` seconds if they are idle
      *  - Request a location snapshot (updates `locationSnapshots` and `lastLocation` on success)
      *
      * (This is meant to be called from another thread while a route is active)
@@ -79,7 +78,7 @@ class Commuter(context: Context) : User() {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     public fun runUpdateLoop(){
         val notify = Notifications("idle", "idle");
-        val startTimestamp = System.currentTimeMillis();
+        var startTimestamp = System.currentTimeMillis();
         while (true) { //change to `while (route != null)` later
             val time = System.currentTimeMillis();
             synchronized(locationSnapshots){ // locations are added asynchronously so there may be race conditions (however unlikely because the thread sleeps for a whole second)
@@ -88,10 +87,11 @@ class Commuter(context: Context) : User() {
                 }
             }
 
-            if (time - startTimestamp >= IDLE_TIMEOUT*1000 && Permissions.isEnabled(Manifest.permission.POST_NOTIFICATIONS) && isUserIdle()){
+            if (time - startTimestamp >= IDLE_TIMEOUT*1000 && isUserIdle()){
                 try {
                     notify.sendNotification("You are idle.", user!!.getCommuterNote());
-                }catch (e: SecurityException){}
+                } catch (e: SecurityException) {}
+                startTimestamp = time; // notify every `IDLE_TIMEOUT` seconds
             }
 
             client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
