@@ -5,7 +5,10 @@ import android.content.Context
 import android.location.Location
 import android.util.Log
 import androidx.annotation.RequiresPermission
+import com.example.setupformaps.application.Notifications
+import com.example.setupformaps.application.Permissions
 import com.example.setupformaps.location.Route
+import com.example.setupformaps.user
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
@@ -17,7 +20,7 @@ import kotlin.math.cos
 
 class Commuter(context: Context) : User() {
     private val UPDATE_FREQUENCY = 1000L; // milliseconds
-    private val IDLE_TIMEOUT = 60*5; // seconds
+    private val IDLE_TIMEOUT = 10; // seconds
     private val IDLE_RADIUS = 25; // meters
 
     private var client =  LocationServices.getFusedLocationProviderClient(context);
@@ -75,6 +78,7 @@ class Commuter(context: Context) : User() {
      * */
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     public fun runUpdateLoop(){
+        val notify = Notifications("idle", "idle");
         val startTimestamp = System.currentTimeMillis();
         while (true) { //change to `while (route != null)` later
             val time = System.currentTimeMillis();
@@ -84,9 +88,10 @@ class Commuter(context: Context) : User() {
                 }
             }
 
-            if (time - startTimestamp >= IDLE_TIMEOUT*1000 && isUserIdle()){
-                Log.d("IdleDebug","User is idle");
-                // TODO: send notification to user
+            if (time - startTimestamp >= IDLE_TIMEOUT*1000 && Permissions.isEnabled(Manifest.permission.POST_NOTIFICATIONS) && isUserIdle()){
+                try {
+                    notify.sendNotification("You are idle.", user!!.getCommuterNote());
+                }catch (e: SecurityException){}
             }
 
             client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
