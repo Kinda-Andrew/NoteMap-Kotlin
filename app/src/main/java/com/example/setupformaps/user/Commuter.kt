@@ -23,14 +23,14 @@ class Commuter(context: Context) : User() {
     private val IDLE_RADIUS = 25; // meters
 
     private var client =  LocationServices.getFusedLocationProviderClient(context);
-    private var lastLocation : LatLng? = null;
+    @Volatile private var lastLocation : LatLng? = null;
     private var locationSnapshots = PriorityQueue<Location> { o1, o2 -> // sorted oldest to newest
         o1.time.compareTo(o2.time)
     } // Snapshots older than `IDLE_TIMEOUT` should be discarded using `poll()`
 
 
     private var shareableCode : String = "";
-    private var note : String = "";
+    @Volatile private var note : String = "";
     private var route : Route? = null;
 
 
@@ -67,12 +67,14 @@ class Commuter(context: Context) : User() {
         };
     }
 
+    @Volatile private var isRunning = false; //keeps update loop thread alive
     /**
      * Starts the commuter's update loop.
      *
      * This function should be called when a route is started.
      * */
     public fun onRouteStart(){
+        isRunning = true;
         Thread{
             try {
                 runUpdateLoop()
@@ -82,12 +84,14 @@ class Commuter(context: Context) : User() {
     }
 
     /**
-     * Sets the `route` to `null`, ending the commuter's update loop.
+     * Sets `route` to `null`.
+     * Stops the commuter's update loop.
      *
      * This function should be called when the route is finished.
      * */
     public fun onRouteEnd(){
-        this.route = null; //kills the update loop (well, it will when we change the loop condition)
+        this.isRunning = false; //kills the thread
+        this.route = null; // `route` COULD be used as the condition instead, but the caller might accidentally stop the update loop by setting it to null
     }
 
     /**
@@ -102,7 +106,7 @@ class Commuter(context: Context) : User() {
     private fun runUpdateLoop(){
         val notify = Notifications("idle", "idle");
         var startTimestamp = System.currentTimeMillis();
-        while (true) { //change to `while (route != null)` later
+        while (isRunning) {
             val time = System.currentTimeMillis();
             synchronized(locationSnapshots){ // locations are added asynchronously so there may be race conditions (however unlikely because the thread sleeps for a whole second)
                 while (!locationSnapshots.isEmpty() && locationSnapshots.peek()!!.time < time - IDLE_TIMEOUT*1000){
