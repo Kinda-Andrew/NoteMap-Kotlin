@@ -18,6 +18,8 @@ class Commuter(context: Context) : User() {
     private val UPDATE_FREQUENCY = 1000L; // milliseconds
     private val IDLE_TIMEOUT = 10; // seconds
     private val IDLE_RADIUS = 25; // meters
+    private val DEVIATION_DISTANCE = 25; // meters
+    private val DEVIATION_NOTIFICATION_FREQUENCY = 10; //seconds
 
     private var client =  LocationServices.getFusedLocationProviderClient(context);
     @Volatile private var lastLocation : LatLng? = null;
@@ -101,8 +103,10 @@ class Commuter(context: Context) : User() {
      * */
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun runUpdateLoop(){
-        val notify = Notifications("idle", "idle");
-        var startTimestamp = System.currentTimeMillis();
+        val idleNotifications = Notifications("idle", "idle");
+        var idleNotificationTimestamp = System.currentTimeMillis();
+        val deviationNotifications = Notifications("deviation", "deviation");
+        var deviationNotificationTimestamp = idleNotificationTimestamp;
         while (isRunning) {
             val time = System.currentTimeMillis();
             synchronized(locationSnapshots){ // locations are added asynchronously so there may be race conditions (however unlikely because the thread sleeps for a whole second)
@@ -111,11 +115,18 @@ class Commuter(context: Context) : User() {
                 }
             }
 
-            if (time - startTimestamp >= IDLE_TIMEOUT*1000 && isUserIdle()){
+            if (time - idleNotificationTimestamp >= IDLE_TIMEOUT*1000 && isUserIdle()){
                 try {
-                    notify.sendNotification("You are idle.", user!!.getCommuterNote());
+                    idleNotifications.sendNotification("You are idle.", user!!.getCommuterNote());
                 } catch (e: SecurityException) {}
-                startTimestamp = time; // notify every `IDLE_TIMEOUT` seconds
+                idleNotificationTimestamp = time; // notify every `IDLE_TIMEOUT` seconds
+            }
+
+            if (time - deviationNotificationTimestamp >= DEVIATION_NOTIFICATION_FREQUENCY*1000 && distanceFromRoute() > DEVIATION_DISTANCE){
+                try {
+                    deviationNotifications.sendNotification("You're going the wrong way!", "Please return to the route.");
+                } catch (e: SecurityException) {}
+                deviationNotificationTimestamp = time; // notify every `DEVIATION_NOTIFICATION_FREQUENCY` seconds
             }
 
             client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
@@ -171,7 +182,7 @@ class Commuter(context: Context) : User() {
         for (i in 1 until points.size) {
             val end = CoordinateMath.toCoordinate(points[i], reference);
             val dist = CoordinateMath.lineSegmentDistanceFromOrigin(start, end) // `reference` (`lastLocation`) becomes origin in this coordinate system
-            
+
             if (dist < min) min = dist;
             start = end;
         }
