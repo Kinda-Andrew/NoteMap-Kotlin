@@ -52,8 +52,6 @@ class CoordinateMath {
         /**
          * Finds the shortest distance from the origin to the given line segment.
          *
-         * Returns positive infinity if no perpendicular projection falls within the line segment.
-         *
          * @param start The start of the line segment
          * @param end The end of the line segment
          * @return The distance to origin
@@ -68,7 +66,9 @@ class CoordinateMath {
             segmentVector /= segmentLength; //normalize
 
             val dot = dot(segmentVector, translatedOrigin)
-            if (dot > segmentLength || dot < 0) return Double.POSITIVE_INFINITY //out of bounds of line segment
+            if (dot > segmentLength || dot < 0){ //out of bounds of line segment
+                return minOf(length(start), length(end)) //use endpoints instead of perpendicular distance from the segment
+            }
 
             return abs(dot(Coordinate(-segmentVector.y, segmentVector.x), translatedOrigin))
             // dot product with the vector perpendicular to `segmentVector` and the translated origin
