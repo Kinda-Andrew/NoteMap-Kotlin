@@ -173,7 +173,7 @@ class Commuter(context: Context) : User() {
      * @return Distance from route in meters
      * */
     private fun distanceFromRoute() : Double{
-        if (route == null) return Double.NaN;
+        if (route == null || lastLocation == null) return Double.NaN; // `Double.NaN` fails any comparison
         val points = route!!.getRoute();
         val reference = lastLocation!!;
 

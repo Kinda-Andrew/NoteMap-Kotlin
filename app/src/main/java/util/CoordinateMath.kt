@@ -50,7 +50,7 @@ class CoordinateMath {
         }
 
         /**
-         * Finds the shortest distance from the origin to the given line segment.
+         * Finds the shortest distance from origin to the given line segment.
          *
          * @param start The start of the line segment
          * @param end The end of the line segment
