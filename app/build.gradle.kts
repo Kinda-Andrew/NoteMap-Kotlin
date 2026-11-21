@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
     implementation("org.locationtech.jts:jts-core:1.20.0")
+    implementation("com.google.android.libraries.navigation:navigation:8.1.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
