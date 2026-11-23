@@ -6,12 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".HomePageActivity">
 
-    <!-- some buttons I found online for an example-->
    <LinearLayout
        android:layout_width="match_parent"
        android:layout_height="match_parent"
        android:orientation="vertical" >
        <Button android:id="@+id/map_button_id"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="@string/send_to_map" />
+       <Button android:id="@+id/navigation_button_id"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:text="@string/send_to_map" />

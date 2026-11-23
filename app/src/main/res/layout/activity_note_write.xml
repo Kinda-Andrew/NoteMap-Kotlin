@@ -10,12 +10,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Enter note here"
+        android:hint="@string/enter_note_here"
         android:inputType="text" />
 
     <Button
         android:id="@+id/saveNote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save" />
+        android:text="@string/save" />
 </LinearLayout>
