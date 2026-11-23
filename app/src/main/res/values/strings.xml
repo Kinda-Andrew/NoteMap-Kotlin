@@ -9,4 +9,5 @@
     <string name="Make_Note">Make A Note</string>
     <string name="enter_note_here">Enter note here</string>
     <string name="save">Save Note</string>
+    <string name="send_to_navigation">click to go to navigation</string>
 </resources>

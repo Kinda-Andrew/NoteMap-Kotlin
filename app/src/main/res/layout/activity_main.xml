@@ -17,7 +17,7 @@
        <Button android:id="@+id/navigation_button_id"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="@string/send_to_map" />
+           android:text="@string/send_to_navigation" />
    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
