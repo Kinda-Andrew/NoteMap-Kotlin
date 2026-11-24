@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.setupformaps.application.Permissions
 import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
+import com.google.android.libraries.navigation.NavigationFragment
 
 var user : User? = null;
 lateinit var CONTEXT : Context;
@@ -22,6 +23,9 @@ lateinit var CONTEXT : Context;
  * Once a route is finished, the commuter is returned here.
  * */
 class HomePageActivity : AppCompatActivity() {
+
+    private lateinit var navFragment: NavigationFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -42,6 +46,14 @@ class HomePageActivity : AppCompatActivity() {
         sendMapButton.setOnClickListener {
             val intent = Intent(this, MapsActivity::class.java)
             startActivity(intent)
+        }
+
+        val sendNavButton: Button = findViewById(R.id.navigation_button_id)
+        sendNavButton.setOnClickListener {
+            val intent = Intent(this, NavigationActivity::class.java)
+            startActivity(intent)
+
+
         }
     }
 }
