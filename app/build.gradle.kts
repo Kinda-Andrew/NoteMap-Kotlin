@@ -121,8 +121,10 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.navigation.common.ktx)
     implementation(libs.play.services.location)
-    implementation(libs.play.services.maps)
+    //implementation(libs.play.services.maps) //conflicts with Navigation SDK
     implementation("org.locationtech.jts:jts-core:1.20.0")
+    implementation("com.google.android.libraries.navigation:navigation:8.1.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.1.5") //required for navigation SDK for some reason
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

@@ -5,32 +5,31 @@ import android.content.Context
 import android.location.Location
 import androidx.annotation.RequiresPermission
 import com.example.setupformaps.application.Notifications
-import com.example.setupformaps.application.Permissions
 import com.example.setupformaps.location.Route
 import com.example.setupformaps.user
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import java.util.PriorityQueue
-import org.locationtech.jts.algorithm.MinimumBoundingCircle
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.GeometryFactory
-import kotlin.math.cos
+import util.CoordinateMath
 
 class Commuter(context: Context) : User() {
     private val UPDATE_FREQUENCY = 1000L; // milliseconds
     private val IDLE_TIMEOUT = 10; // seconds
     private val IDLE_RADIUS = 25; // meters
+    private val DEVIATION_DISTANCE = 25; // meters
+    private val DEVIATION_NOTIFICATION_FREQUENCY = 10; //seconds
 
     private var client =  LocationServices.getFusedLocationProviderClient(context);
-    private var lastLocation : LatLng? = null;
+    @Volatile private var lastLocation : LatLng? = null;
     private var locationSnapshots = PriorityQueue<Location> { o1, o2 -> // sorted oldest to newest
         o1.time.compareTo(o2.time)
     } // Snapshots older than `IDLE_TIMEOUT` should be discarded using `poll()`
 
 
     private var shareableCode : String = "";
-    private var note : String = "";
+    @Volatile private var note : String = "";
     private var route : Route? = null;
 
 
@@ -67,6 +66,33 @@ class Commuter(context: Context) : User() {
         };
     }
 
+    @Volatile private var isRunning = false; //keeps update loop thread alive
+    /**
+     * Starts the commuter's update loop.
+     *
+     * This function should be called when a route is started.
+     * */
+    public fun onRouteStart(){
+        isRunning = true;
+        Thread{
+            try {
+                runUpdateLoop()
+            }
+            catch (e: SecurityException){}
+        }.start()
+    }
+
+    /**
+     * Sets `route` to `null`.
+     * Stops the commuter's update loop.
+     *
+     * This function should be called when the route is finished.
+     * */
+    public fun onRouteEnd(){
+        this.isRunning = false; //kills the thread
+        this.route = null; // `route` COULD be used as the condition instead, but the caller might accidentally stop the update loop by setting it to null
+    }
+
     /**
      * The update loop does the following tasks every `UPDATE_FREQUENCY` milliseconds:
      *  - Remove all snapshots older than `IDLE_TIMEOUT` from `locationSnapshots`
@@ -76,10 +102,12 @@ class Commuter(context: Context) : User() {
      * (This is meant to be called from another thread while a route is active)
      * */
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    public fun runUpdateLoop(){
-        val notify = Notifications("idle", "idle");
-        var startTimestamp = System.currentTimeMillis();
-        while (true) { //change to `while (route != null)` later
+    private fun runUpdateLoop(){
+        val idleNotifications = Notifications("idle", "idle");
+        var idleNotificationTimestamp = System.currentTimeMillis();
+        val deviationNotifications = Notifications("deviation", "deviation");
+        var deviationNotificationTimestamp = idleNotificationTimestamp;
+        while (isRunning) {
             val time = System.currentTimeMillis();
             synchronized(locationSnapshots){ // locations are added asynchronously so there may be race conditions (however unlikely because the thread sleeps for a whole second)
                 while (!locationSnapshots.isEmpty() && locationSnapshots.peek()!!.time < time - IDLE_TIMEOUT*1000){
@@ -87,11 +115,18 @@ class Commuter(context: Context) : User() {
                 }
             }
 
-            if (time - startTimestamp >= IDLE_TIMEOUT*1000 && isUserIdle()){
+            if (time - idleNotificationTimestamp >= IDLE_TIMEOUT*1000 && isUserIdle()){
                 try {
-                    notify.sendNotification("You are idle.", user!!.getCommuterNote());
+                    idleNotifications.sendNotification("You are idle.", user!!.getCommuterNote());
                 } catch (e: SecurityException) {}
-                startTimestamp = time; // notify every `IDLE_TIMEOUT` seconds
+                idleNotificationTimestamp = time; // notify every `IDLE_TIMEOUT` seconds
+            }
+
+            if (time - deviationNotificationTimestamp >= DEVIATION_NOTIFICATION_FREQUENCY*1000 && distanceFromRoute() > DEVIATION_DISTANCE){
+                try {
+                    deviationNotifications.sendNotification("You're going the wrong way!", "Please return to the route.");
+                } catch (e: SecurityException) {}
+                deviationNotificationTimestamp = time; // notify every `DEVIATION_NOTIFICATION_FREQUENCY` seconds
             }
 
             client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
@@ -122,38 +157,36 @@ class Commuter(context: Context) : User() {
         synchronized(locationSnapshots){
             coordinates = Array<Coordinate?>(locationSnapshots.size) { null }
             for ((i, location) in locationSnapshots.withIndex()) {
-                coordinates[i] = toCoordinate(location, reference); //convert to Cartesian coordinates
+                coordinates[i] = CoordinateMath.toCoordinate(LatLng(location.latitude, location.longitude), reference); //convert to Cartesian coordinates
             }
         }
 
-        val minBoundingCircle = MinimumBoundingCircle(
-            GeometryFactory().createMultiPointFromCoords(coordinates)
-        ) // the smallest circle that can enclose every location snapshot
-
-        return minBoundingCircle.radius <= IDLE_RADIUS;
+        return CoordinateMath.minBoundingCircleRadius(coordinates as Array<Coordinate>) <= IDLE_RADIUS;
     }
 
-
-    /* HELPER FUNCTIONS */
-
     /**
-     * Converts a GPS location into Cartesian coordinates, given a reference point.
+     * Calculates the user's distance from the route.
      *
-     * @param location The GPS location to convert
-     * @param reference The reference point (used as the origin)
-     * @return The corresponding Cartesian coordinate in meters
-     */
-    private fun toCoordinate(location: Location, reference: LatLng): Coordinate {
-        val earthRadius = 6371000.0
+     * The route is treated as a series of line segments, and the perpendicular distance of
+     * `lastLocation` from each line segment is calculated.
+     *
+     * @return Distance from route in meters
+     * */
+    private fun distanceFromRoute() : Double{
+        if (route == null || lastLocation == null) return Double.NaN; // `Double.NaN` fails any comparison
+        val points = route!!.getRoute();
+        val reference = lastLocation!!;
 
-        val lat0 = Math.toRadians(reference.latitude)
-        val lat = Math.toRadians(location.latitude)
-        val lon = Math.toRadians(location.longitude)
-        val lon0 = Math.toRadians(reference.longitude)
+        var min = Double.POSITIVE_INFINITY
+        var start = CoordinateMath.toCoordinate(points[0], reference);
+        for (i in 1 until points.size) {
+            val end = CoordinateMath.toCoordinate(points[i], reference);
+            val dist = CoordinateMath.lineSegmentDistanceFromOrigin(start, end) // `reference` (`lastLocation`) becomes origin in this coordinate system
 
-        val x = earthRadius * (lon - lon0) * cos(lat0)
-        val y = earthRadius * (lat - lat0)
+            if (dist < min) min = dist;
+            start = end;
+        }
 
-        return Coordinate(x, y)
-    } // if we end up with some sort of geolocation utility class, we can create a more generic version of this function there and use that instead
+        return min;
+    }
 }

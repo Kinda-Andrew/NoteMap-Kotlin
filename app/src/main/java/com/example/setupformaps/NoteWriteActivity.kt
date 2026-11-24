@@ -8,9 +8,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-//Simple activity, allows user to write and save a note to
-//remind themselves where they are going
-//the note input is saved to the user object attribute: commuterNote
+
+/**
+ * Simple activity, allows user to write and save a note to
+ * remind themselves where they are going.
+ *
+ * The note input is saved to the user object attribute: commuterNote
+ * */
 class NoteWriteActivity : AppCompatActivity() {
     lateinit var noteInput: EditText;
 
