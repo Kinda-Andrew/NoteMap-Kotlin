@@ -1,5 +1,5 @@
 <resources>
-     <string name="app_name">NoteMap</string>
+    <string name="app_name">NoteMap</string>
     <string name="title_activity_maps">NoteMap</string>
     <string name="home_page_note_button">Click here</string>
     <string name="hello_I_am_a_button">Hello, I am a Button</string>
@@ -7,4 +7,7 @@
     <string name="hello_i_am_a_textview">i am text on page</string>
     <string name="Back_Pairing">Back to Home</string>
     <string name="Make_Note">Make A Note</string>
+    <string name="enter_note_here">Enter note here</string>
+    <string name="save">Save Note</string>
+    <string name="send_to_navigation">click to go to navigation</string>
 </resources>
