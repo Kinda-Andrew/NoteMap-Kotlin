@@ -151,8 +151,11 @@ class NavigationActivity : AppCompatActivity() {
                     }
 
                     // Start turn-by-turn guidance along the current route.
-                    (user!! as Commuter).setRoute(mNavigator!!.currentRouteSegment);
                     mNavigator!!.startGuidance()
+
+                    //start Commuter's update loop
+                    (user!! as Commuter).setRoute(mNavigator!!.currentRouteSegment);
+                    (user!! as Commuter).onRouteStart() // starts the commuter's update loop
                 }
 
                 Navigator.RouteStatus.NO_ROUTE_FOUND -> displayMessage("Error starting navigation: No route found.")
