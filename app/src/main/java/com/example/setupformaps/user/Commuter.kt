@@ -11,6 +11,7 @@ import com.example.setupformaps.user
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.navigation.Navigator
 import com.google.android.libraries.navigation.RouteSegment
 import java.util.PriorityQueue
 import org.locationtech.jts.geom.Coordinate
@@ -27,11 +28,12 @@ class Commuter(context: Context) : User() {
 
 
     private val client =  LocationServices.getFusedLocationProviderClient(context);
+    public lateinit var navigator: Navigator;
     private val database = DatabaseManager(
         shareableCode,
         this::onNoteChanged,
         this::onDestinationChanged,
-        null, // The caretaker is not able to change the route. If they can do it indirectly by changing destination instead.
+        null, // The caretaker is not able to change the route. They can do it indirectly by changing `destination` instead.
         null // The caretaker also cannot change `lastLocation`
     );
 
@@ -55,14 +57,21 @@ class Commuter(context: Context) : User() {
         else this.note = "";
     }
 
-    override fun getCommuterRoute(): RouteSegment? { return route; }
-    override fun setCommuterRoute(route: RouteSegment?) {
+    override fun getCommuterRoute(): List<LatLng>? {
+        if (route == null) return null;
+        else return route!!.latLngs;
+    }
+    fun setRoute(route: RouteSegment?){
         this.route = route;
         database.setRoute(route);
     }
-    fun onDestinationChanged(dest: LatLng?){
-        // calculate new destination and set route
-        // `Commuter` is not meant to have `onRouteChanged` because it is the one responsible for calculating the route
+
+
+    override fun setCommuterDestination(placeID: String) {
+        database.setDestination(placeID);
+    }
+    fun onDestinationChanged(placeID: String?){
+        // TODO: calculate new route by placeID and call setRoute()
     }
 
     /**

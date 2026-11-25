@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.setupformaps.user.Commuter
 import com.google.android.datatransport.BuildConfig
 import com.google.android.gms.maps.GoogleMap.CameraPerspective
 import com.google.android.libraries.navigation.AudioGuidanceSettings
@@ -82,6 +83,8 @@ class NavigationActivity : AppCompatActivity() {
                 public override fun onNavigatorReady(navigator: Navigator) {
                     displayMessage("Navigator ready.")
                     mNavigator = navigator
+                    (user!! as Commuter).navigator = navigator;
+
                     mNavFragment =
                         supportFragmentManager.findFragmentById(R.id.navigation_fragment) as NavigationFragment?
 
@@ -132,7 +135,7 @@ class NavigationActivity : AppCompatActivity() {
      * Requests directions from the user's current location to a specific place (provided by the
      * Google Places API).
      */
-    private fun navigateToPlace(placeId: String?, travelMode: RoutingOptions?) {
+    public fun navigateToPlace(placeId: String?, travelMode: RoutingOptions?) {
         val destination: Waypoint?
         try {
             destination = Waypoint.builder().setPlaceIdString(placeId).build()
@@ -163,8 +166,8 @@ class NavigationActivity : AppCompatActivity() {
                         )
                     }
 
-                    user!!.setCommuterRoute(mNavigator!!.currentRouteSegment);
                     // Start turn-by-turn guidance along the current route.
+                    (user!! as Commuter).setRoute(mNavigator!!.currentRouteSegment);
                     mNavigator!!.startGuidance()
                 }
 
