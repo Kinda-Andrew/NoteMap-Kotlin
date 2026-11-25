@@ -34,8 +34,8 @@ class HomePageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        if (user == null) user = Commuter(this);
         CONTEXT = applicationContext;
+        if (user == null) user = Commuter();
 
         Permissions.request(Manifest.permission.POST_NOTIFICATIONS, 0, this)
 

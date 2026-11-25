@@ -5,8 +5,10 @@ import android.content.Context
 import android.location.Location
 import android.util.Log
 import androidx.annotation.RequiresPermission
+import com.example.setupformaps.CONTEXT
 import com.example.setupformaps.application.DatabaseManager
 import com.example.setupformaps.application.Notifications
+import com.example.setupformaps.maps.NavigationManager
 import com.example.setupformaps.user
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -17,7 +19,7 @@ import java.util.PriorityQueue
 import org.locationtech.jts.geom.Coordinate
 import util.CoordinateMath
 
-class Commuter(context: Context) : User() {
+class Commuter : User() {
     val shareableCode = generateCode();
     @Volatile private var lastLocation : LatLng? = null;
     private var locationSnapshots = PriorityQueue<Location> { o1, o2 -> // sorted oldest to newest
@@ -27,8 +29,7 @@ class Commuter(context: Context) : User() {
     private var route : RouteSegment? = null;
 
 
-    private val client =  LocationServices.getFusedLocationProviderClient(context);
-    public lateinit var navigator: Navigator;
+    private val client = LocationServices.getFusedLocationProviderClient(CONTEXT);
     private val database = DatabaseManager(
         shareableCode,
         this::onNoteChanged,
@@ -36,6 +37,7 @@ class Commuter(context: Context) : User() {
         null, // The caretaker is not able to change the route. They can do it indirectly by changing `destination` instead.
         null // The caretaker also cannot change `lastLocation`
     );
+    public val navigation = NavigationManager();
 
 
 
@@ -71,7 +73,8 @@ class Commuter(context: Context) : User() {
         database.setDestination(placeID);
     }
     fun onDestinationChanged(placeID: String?){
-        // TODO: calculate new route by placeID and call setRoute()
+        onRouteEnd();
+        navigation.calculateRoute(placeID, this::onRouteStart);
     }
 
     /**
@@ -107,7 +110,11 @@ class Commuter(context: Context) : User() {
      *
      * This function should be called when a route is started.
      * */
-    public fun onRouteStart(){
+    public fun onRouteStart(navigator: Navigator){
+        Log.d("routeDebug", "onRouteStart()");
+        this.setRoute(navigator.currentRouteSegment);
+        navigator.startGuidance() // Start turn-by-turn guidance along the current route.
+
         isRunning = true;
         Thread{
             try {
