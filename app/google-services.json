@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "2307834493",
+    "firebase_url": "https://notemap-database-default-rtdb.firebaseio.com",
+    "project_id": "notemap-database",
+    "storage_bucket": "notemap-database.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:2307834493:android:7756eb7cce0d891efd6714",
+        "android_client_info": {
+          "package_name": "com.example.setupformaps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6krBW26Y6qrc6D6NrSQREto9YVBqV5V0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

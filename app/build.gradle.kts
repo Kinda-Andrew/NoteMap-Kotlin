@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.maps.secrets)
+    id("com.google.gms.google-services") //for database
 }
 
 secrets {
@@ -83,6 +84,10 @@ dependencies {
     // isn't required by the Navigation SDK.
     implementation(libs.google.places)
     implementation(libs.google.material)
+
+    // Realtime Database library for Android
+    implementation(platform("com.google.firebase:firebase-bom:35.2.0"))
+    implementation("com.google.firebase:firebase-database")
 
     implementation(libs.kotlin.stdlib)
     coreLibraryDesugaring(libs.desugar.jdk.libs)

@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import com.google.android.datatransport.BuildConfig
 import com.google.android.gms.maps.GoogleMap.CameraPerspective
 import com.google.android.libraries.navigation.AudioGuidanceSettings
-import com.google.android.libraries.navigation.ListenableResultFuture
 import com.google.android.libraries.navigation.NavigationApi
 import com.google.android.libraries.navigation.NavigationFragment
 import com.google.android.libraries.navigation.Navigator
@@ -164,6 +163,7 @@ class NavigationActivity : AppCompatActivity() {
                         )
                     }
 
+                    user!!.setCommuterRoute(mNavigator!!.currentRouteSegment);
                     // Start turn-by-turn guidance along the current route.
                     mNavigator!!.startGuidance()
                 }
