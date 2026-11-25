@@ -6,9 +6,11 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.setupformaps.application.Permissions
 import com.example.setupformaps.user.Commuter
 import com.google.android.datatransport.BuildConfig
 import com.google.android.gms.maps.GoogleMap.CameraPerspective
@@ -30,14 +32,21 @@ class NavigationActivity : AppCompatActivity() {
     private var mNavFragment: NavigationFragment? = null
     private var mRoutingOptions: RoutingOptions? = null
 
-    private var mLocationPermissionGranted = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
-        // Initialize the Navigation SDK.
-        initializeNavigationSdk()
+
+        /*
+        * Request location permission, so that we can get the location of the
+        * device. The result of the permission request is handled by a callback,
+        * onRequestPermissionsResult.
+        */
+        if (Permissions.isEnabled(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            initializeNavigationSdk() //initialize if permissions are already granted
+        } else {
+            Permissions.request(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION, this)
+        } //request permissions, initialize in callback
     }
 
     /**
@@ -45,32 +54,6 @@ class NavigationActivity : AppCompatActivity() {
      * navigateToPlace() method when the navigator is ready.
      */
     private fun initializeNavigationSdk() {
-        /*
-     * Request location permission, so that we can get the location of the
-     * device. The result of the permission request is handled by a callback,
-     * onRequestPermissionsResult.
-     */
-        if (ContextCompat.checkSelfPermission(
-                this.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            mLocationPermissionGranted = true
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
-                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
-            )
-        }
-
-        if (!mLocationPermissionGranted) {
-            displayMessage(
-                "Error loading Navigation SDK: " + "The user has not granted location permission."
-            )
-            return
-        }
-
         // Get a navigator.
         NavigationApi.getNavigator(
             this,
@@ -79,6 +62,7 @@ class NavigationActivity : AppCompatActivity() {
 
                 //suppressing for now. The initializeNavigationSdk() guarantees permissions, but it wants
                 //it again here for some reason.
+
                 @SuppressLint("MissingPermission")
                 public override fun onNavigatorReady(navigator: Navigator) {
                     displayMessage("Navigator ready.")
@@ -135,7 +119,7 @@ class NavigationActivity : AppCompatActivity() {
      * Requests directions from the user's current location to a specific place (provided by the
      * Google Places API).
      */
-    public fun navigateToPlace(placeId: String?, travelMode: RoutingOptions?) {
+    private fun navigateToPlace(placeId: String?, travelMode: RoutingOptions?) {
         val destination: Waypoint?
         try {
             destination = Waypoint.builder().setPlaceIdString(placeId).build()
@@ -187,12 +171,11 @@ class NavigationActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        mLocationPermissionGranted = false
         when (requestCode) {
             PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION -> {
                 // If request is canceled, the result arrays are empty.
                 if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mLocationPermissionGranted = true
+                    initializeNavigationSdk()
                 }
             }
         }

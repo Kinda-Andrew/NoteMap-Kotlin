@@ -9,7 +9,6 @@ import com.example.setupformaps.CONTEXT
 
 class Permissions {
     companion object {
-        public const val MAP_STARTUP_REQUEST_CODE = 1;
         public fun isEnabled(permission: String): Boolean {
             return ContextCompat.checkSelfPermission(
                 CONTEXT,
