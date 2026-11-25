@@ -70,6 +70,7 @@ kotlin {
 
 dependencies {
 
+    implementation(libs.androidx.activity.ktx)
     // Include the Google Navigation SDK.
     // Note: remember to exclude Google Play services Maps SDK from your transitive
     // dependencies to avoid duplicate copies of the Google Maps SDK.

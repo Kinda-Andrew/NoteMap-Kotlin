@@ -1,9 +1,12 @@
 package com.example.setupformaps
 
 import android.Manifest
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +16,9 @@ import com.example.setupformaps.application.Permissions
 import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
 import com.google.android.libraries.navigation.NavigationFragment
+import com.google.android.libraries.places.api.model.Place
+import java.lang.Exception
+import android.widget.Toast
 
 var user : User? = null;
 lateinit var CONTEXT : Context;
@@ -52,10 +58,52 @@ class HomePageActivity : AppCompatActivity() {
         sendNavButton.setOnClickListener {
             val intent = Intent(this, NavigationActivity::class.java)
             startActivity(intent)
+        }
 
-
+        val sendPlaceButton: Button = findViewById(R.id.place_button_id)
+        sendPlaceButton.setOnClickListener {
+            val intent = Intent(this, PlacePickerActivity::class.java)
+            startActivity(intent)
         }
     }
-}
+
+    /**
+     * Uses the Google Places API Place Picker to choose a destination to navigate to.
+     *
+     * This method is referenced by the "Set Destination" item in menu_default.xml
+     */
+    /*
+    fun showPlacePickerForDestination(v: MenuItem?): Boolean {
+        try {
+            startActivityForResult(Intent(this, PlacePickerActivity::class.java), PLACE_PICKER_REQUEST)
+        } catch (e: Exception) {
+            Toast.makeText(this,
+                "Could not display Place Picker. Check your API key has the Google" + "Places API enabled.",Toast.LENGTH_SHORT
+            ).show()
+            Log.e(TAG, Log.getStackTraceString(e))
+        }
+        return true
+    }
+    */
+
+//dont think this is needed. will keep for now, so I dont forget
+    /*
+    /** If the Place Picker activity returns a destination, starts navigation to that place. */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
+            data?.let {
+                val place: Place = PlacePickerActivity.getPlace(it)
+                navigateToPlace(place)
+            }
+        }
+
+
+
+
+    }
+    */
+
+    }
 
 
