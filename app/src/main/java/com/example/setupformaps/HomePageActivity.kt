@@ -75,7 +75,7 @@ class HomePageActivity : AppCompatActivity() {
                 }
                 else{
                     //either cancel the click, cause no destination is set
-                    // or block the user from even clicking on this if destination isnt set?
+                    // or block the user from even clicking on this if destination isn't set?
                 }
             }
             startActivity(intent)

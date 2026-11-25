@@ -37,8 +37,8 @@ class NavigationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
-        //set destinationId.
-        destinationId = intent.getStringExtra("destinationId").toString()
+        //set destinationId. Defaults to computer history museum for now
+        destinationId = intent.getStringExtra("destinationId")?: "ChIJm7NJkla3j4AR8vR-HWRxgOo";
 
         // Initialize the Navigation SDK.
         initializeNavigationSdk()
