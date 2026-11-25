@@ -31,11 +31,12 @@ class PlacePickerActivity : AppCompatActivity() {
                     val sessionToken = data?.let { PlaceAutocomplete.getSessionTokenFromIntent(it) }
                     if (prediction != null) {
                         val fields =
+                            //Only need the id,which is used to set the destination
                             listOf(
                                 Place.Field.ID,
-                                Place.Field.DISPLAY_NAME,
-                                Place.Field.LOCATION,
-                                Place.Field.TYPES,
+                           //     Place.Field.DISPLAY_NAME,
+                          //      Place.Field.LOCATION,
+                         //       Place.Field.TYPES,
                             )
                         val request =
                             FetchPlaceRequest.builder(prediction.placeId, fields)
