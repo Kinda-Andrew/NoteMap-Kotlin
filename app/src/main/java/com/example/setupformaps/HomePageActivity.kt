@@ -69,14 +69,23 @@ class HomePageActivity : AppCompatActivity() {
          */
         val sendNavButton: Button = findViewById(R.id.navigation_button_id)
         sendNavButton.setOnClickListener {
-            val intent = Intent(this, NavigationActivity::class.java)
+            val intent = Intent(this, NavigationActivity::class.java).apply {
+                if(user?.getCommuterDestinationId() != ""){
+                    putExtra("destinationId",user?.getCommuterDestinationId())
+                }
+                else{
+                    //either cancel the click, cause no destination is set
+                    // or block the user from even clicking on this if destination isnt set?
+                }
+            }
             startActivity(intent)
         }
 
-        val placeResult = null
 
-
-
+        /**
+         * assigns a callback to set the user's placeId once they have completed the navigation
+         * activity.
+         */
         val placeLauncher = registerForActivityResult(
             StartActivityForResult()
         ) { result: ActivityResult ->
@@ -84,8 +93,10 @@ class HomePageActivity : AppCompatActivity() {
                 result.data?.let { intent ->
                     val place: Place = PlacePickerActivity.getPlace(intent)
                     // Use place.name, place.latLng, etc.
-                    //IT WORK WOOOO
-                    Log.i("Main Activity",place.id );
+                    // the ?: is in case the string place.id is null. This should not happen,
+                    //but could be a possibility with google places api? this is just safer
+                    Log.i("Main Activity",place.id?: "" );
+                    user?.setCommuterDestinationId(place.id?: "");
 
                 }
             }

@@ -27,6 +27,7 @@ class Commuter(context: Context) : User() {
         o1.time.compareTo(o2.time)
     } // Snapshots older than `IDLE_TIMEOUT` should be discarded using `poll()`
 
+    private var destinationId : String = ""
 
     private var shareableCode : String = "";
     @Volatile private var note : String = "";
@@ -38,6 +39,10 @@ class Commuter(context: Context) : User() {
     override fun setCommuterNote(note: String) { this.note = note; }
 
     override fun getCommuterRoute(): Route? { return route; }
+
+    override fun setCommuterDestinationId(destinationId: String) { this.destinationId = destinationId; }
+
+    override fun getCommuterDestinationId(): String { return destinationId; }
 
     /**
      * Immediately returns the commuter's last known location.
