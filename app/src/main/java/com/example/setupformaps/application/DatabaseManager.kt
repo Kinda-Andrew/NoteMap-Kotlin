@@ -46,6 +46,10 @@ class DatabaseManager(
     private val lastLocationField = ref.child("lastLocation");
 
     init{
+        noteField.setValue("placeholder"); //for debugging
+    }
+
+    init{
         // setup listeners for when data changes
         // for most of these im currently assuming there is no malformed data
 

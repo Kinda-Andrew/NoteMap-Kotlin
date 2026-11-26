@@ -7,8 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.setupformaps.CONTEXT
 import com.example.setupformaps.NavigationActivity
 import com.example.setupformaps.R
-import com.example.setupformaps.user
-import com.example.setupformaps.user.Commuter
 import com.google.android.datatransport.BuildConfig
 import com.google.android.gms.maps.GoogleMap.CameraPerspective
 import com.google.android.libraries.navigation.AudioGuidanceSettings
@@ -82,7 +80,8 @@ class NavigationManager {
                         else -> displayMessage("Error loading Navigation SDK: $errorCode")
                     }
                 }
-            })
+            }
+        )
     }
 
     /**
@@ -91,8 +90,11 @@ class NavigationManager {
      */
     public fun calculateRoute(placeId: String?, callback: (Navigator) -> Unit) {
         if (mNavigator == null) return;
-
-        val travelMode: RoutingOptions? = mRoutingOptions
+        if (placeId == null){
+            mNavigator!!.stopGuidance()
+            mNavigator!!.clearDestinations()
+            return;
+        }
 
         val destination: Waypoint?
         try {
@@ -103,7 +105,7 @@ class NavigationManager {
         }
 
         // Create a future to await the result of the asynchronous navigator task.
-        mNavigator?.setDestination(destination, travelMode) { routeDescription ->
+        mNavigator?.setDestination(destination, mRoutingOptions) { routeDescription ->
             when (routeDescription.routeStatus) {
                 Navigator.RouteStatus.OK -> {
                     // Enable voice audio guidance (through the device speaker).

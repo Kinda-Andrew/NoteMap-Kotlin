@@ -37,7 +37,7 @@ class Commuter : User() {
         null, // The caretaker is not able to change the route. They can do it indirectly by changing `destination` instead.
         null // The caretaker also cannot change `lastLocation`
     );
-    public val navigation = NavigationManager();
+    public val navigator = NavigationManager();
 
 
 
@@ -69,12 +69,12 @@ class Commuter : User() {
     }
 
 
-    override fun setCommuterDestination(placeID: String) {
+    override fun setCommuterDestination(placeID: String?) {
         database.setDestination(placeID);
     }
     fun onDestinationChanged(placeID: String?){
         onRouteEnd();
-        navigation.calculateRoute(placeID, this::onRouteStart);
+        navigator.calculateRoute(placeID, this::onRouteStart);
     }
 
     /**

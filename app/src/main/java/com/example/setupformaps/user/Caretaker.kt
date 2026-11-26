@@ -25,7 +25,7 @@ class Caretaker(private val code: String) : User() {
         else this.note = "";
     }
 
-    override fun setCommuterDestination(placeID: String) {
+    override fun setCommuterDestination(placeID: String?) {
         database.setDestination(placeID); //update database
     }
     fun onDestinationChanged(dest: String?){
