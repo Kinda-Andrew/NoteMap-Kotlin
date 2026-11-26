@@ -11,4 +11,5 @@
     <string name="save">Save Note</string>
     <string name="send_to_navigation">click to go to navigation</string>
     <string name="send_to_place">click to go to place</string>
+    <string name="send_to_note">send to note</string>
 </resources>

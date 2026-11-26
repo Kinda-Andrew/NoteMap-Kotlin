@@ -22,6 +22,10 @@
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:text="@string/send_to_place" />
+       <Button android:id="@+id/note_button_id"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="@string/send_to_note" />
    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,7 @@ package com.example.setupformaps.application
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.os.Trace.isEnabled
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.setupformaps.CONTEXT

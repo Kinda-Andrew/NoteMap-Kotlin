@@ -18,7 +18,9 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.setupformaps.application.ButtonUIHandler
 import com.example.setupformaps.application.Permissions
+import com.example.setupformaps.databinding.ActivityMainBinding
 import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
 import com.google.android.libraries.navigation.NavigationFragment
@@ -41,6 +43,7 @@ class HomePageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+
         /**
          * create Commuter object, which stores the users note and destination
          */
@@ -61,6 +64,12 @@ class HomePageActivity : AppCompatActivity() {
         val sendMapButton: Button = findViewById(R.id.map_button_id)
         sendMapButton.setOnClickListener {
             val intent = Intent(this, MapsActivity::class.java)
+            startActivity(intent)
+        }
+
+        val sendNoteButton: Button = findViewById(R.id.note_button_id)
+        sendNoteButton.setOnClickListener {
+            val intent = Intent(this, NoteWriteActivity::class.java)
             startActivity(intent)
         }
 
@@ -92,9 +101,9 @@ class HomePageActivity : AppCompatActivity() {
             if (result.resultCode == RESULT_OK) {
                 result.data?.let { intent ->
                     val place: Place = PlacePickerActivity.getPlace(intent)
-                    // Use place.name, place.latLng, etc.
-                    // the ?: is in case the string place.id is null. This should not happen,
-                    //but could be a possibility with google places api? this is just safer
+                    /** the ?: is in case the string place.id is null. This should not happen,
+                      * but could be a possibility with google places api? this is just safer
+                      */
                     Log.i("Main Activity",place.id?: "" );
                     user?.setCommuterDestinationId(place.id?: "");
 
@@ -112,41 +121,7 @@ class HomePageActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Uses the Google Places API Place Picker to choose a destination to navigate to.
-     *
-     * This method is referenced by the "Set Destination" item in menu_default.xml
-     */
-/*
-    fun showPlacePickerForDestination(v: MenuItem?): Boolean {
-        try {
-            startActivityForResult(Intent(this, PlacePickerActivity::class.java), PLACE_PICKER_REQUEST)
-        } catch (e: Exception) {
-            Toast.makeText(this,
-                "Could not display Place Picker. Check your API key has the Google" + "Places API enabled.",Toast.LENGTH_SHORT
-            ).show()
-            Log.e(TAG, Log.getStackTraceString(e))
-        }
-        return true
-    }
-*/
-
-//dont think this is needed. will keep for now, so I dont forget
-    /*
-  /*   If the Place Picker activity returns a destination, starts navigation to that place. */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
-            data?.let {
-                val place: Place = PlacePickerActivity.getPlace(it)
-                navigateToPlace(place)
-            }
-        }
-
-
-*/
-
-    }
+}
 
 
 
