@@ -1,26 +1,18 @@
 package com.example.setupformaps
 
 import android.Manifest
-import android.app.Activity
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.setupformaps.application.ButtonUIHandler
 import com.example.setupformaps.application.Permissions
-import com.example.setupformaps.databinding.ActivityMainBinding
 import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
 import com.google.android.libraries.navigation.NavigationFragment

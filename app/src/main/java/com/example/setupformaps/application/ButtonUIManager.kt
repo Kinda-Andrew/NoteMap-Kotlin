@@ -4,12 +4,15 @@ import android.animation.ObjectAnimator
 import android.widget.Button
 import com.example.setupformaps.R
 import com.example.setupformaps.databinding.ActivityMainBinding
+import com.example.setupformaps.databinding.ActivityMapsBinding
+import androidx.appcompat.app.AppCompatActivity
 
-class ButtonUIHandler(binding: ActivityMainBinding) {
+class ButtonUIManager(binding: ActivityMainBinding) {
 
     val noteEntered = false
     val destinationEntered = false
-    var bindingMain : ActivityMainBinding = binding
+   // var bindingMain : ActivityMainBinding = binding
+    private lateinit var binding: ActivityMainBinding
 
 
     /**
@@ -29,19 +32,6 @@ class ButtonUIHandler(binding: ActivityMainBinding) {
             if(noteEntered && destinationEntered){
                 return true
             }
-            /**
-             * check which value was false, for the purpose
-             * of indicating to the user why the button
-             * cant be clicked
-             */
-            else if(destinationEntered){
-                animateButton(bindingMain.noteButtonId);
-                return false;
-            }
-            else {
-                animateButton(bindingMain.placeButtonId);
-                return false;
-            }
         }
         /**
          * place should be entered first, no prerequisite.
@@ -56,22 +46,14 @@ class ButtonUIHandler(binding: ActivityMainBinding) {
             if(destinationEntered){
                 return true
             }
-            else{
-                /**
-                 * animate the destination button to indicate
-                 * that it needs input first.
-                 */
-                animateButton(bindingMain.placeButtonId);
-                return false;
-            }
         }
         /**
          * if none of the button id's match, this function should not be called
-         * return false to be safe
+         * return false to be safe/consistency
          */
-        else{
-            return false;
-        }
+
+        return false;
+
 
     }
 
