@@ -34,7 +34,8 @@ class NoteWriteActivity : AppCompatActivity() {
         val saveNote: Button = findViewById(R.id.saveNote)
         saveNote.setOnClickListener {
             user!!.setCommuterNote(noteInput.getText().toString());
-            onBackPressedDispatcher.onBackPressed()
+            setResult(RESULT_OK)
+            finish()
         }
     }
 

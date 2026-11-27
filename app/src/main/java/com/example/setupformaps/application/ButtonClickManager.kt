@@ -1,9 +1,17 @@
 package com.example.setupformaps.application
 
 import android.animation.ObjectAnimator
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.widget.Button
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import com.example.setupformaps.PlacePickerActivity
 import com.example.setupformaps.R
+import com.example.setupformaps.buttonClickManager
 import com.example.setupformaps.databinding.ActivityMainBinding
+import com.example.setupformaps.user
+import com.google.android.libraries.places.api.model.Place
 
 class ButtonClickManager {
 
@@ -15,6 +23,7 @@ class ButtonClickManager {
 
     fun setDestinationEntered(boolean: Boolean){destinationEntered = boolean}
     fun getDestinationEntered(): Boolean {return destinationEntered}
+
 
 
     /**
