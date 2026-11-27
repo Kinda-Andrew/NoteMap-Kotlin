@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.setupformaps.application.ButtonClickManager
 import com.example.setupformaps.application.Permissions
 import com.example.setupformaps.user.Commuter
 import com.example.setupformaps.user.User
@@ -35,6 +36,7 @@ class HomePageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val buttonClickManager = ButtonClickManager();
 
         /**
          * create Commuter object, which stores the users note and destination
@@ -61,8 +63,21 @@ class HomePageActivity : AppCompatActivity() {
 
         val sendNoteButton: Button = findViewById(R.id.note_button_id)
         sendNoteButton.setOnClickListener {
-            val intent = Intent(this, NoteWriteActivity::class.java)
-            startActivity(intent)
+            /**
+             * checks if the user should be allowed to enter a note
+             * should only be true if a destination was set
+             * what if this resets everytime?? uh oh
+             * well, give it a try
+             */
+            if(buttonClickManager.isClickAllowed(findViewById(R.id.note_button_id))){
+                    val intent = Intent(this, NoteWriteActivity::class.java)
+                    startActivity(intent)
+                }
+            else{
+                buttonClickManager.animateButton(findViewById(R.id.note_button_id))
+
+            }
+
         }
 
         /**
@@ -84,7 +99,7 @@ class HomePageActivity : AppCompatActivity() {
 
 
         /**
-         * assigns a callback to set the user's placeId once they have completed the navigation
+         * assigns a callback to set the user's placeId once they have completed the place
          * activity.
          */
         val placeLauncher = registerForActivityResult(
@@ -98,6 +113,11 @@ class HomePageActivity : AppCompatActivity() {
                       */
                     Log.i("Main Activity",place.id?: "" );
                     user?.setCommuterDestinationId(place.id?: "");
+
+                    /**
+                     * allow the user to write a note, as a destination has been selected
+                     */
+                    buttonClickManager.setDestinationEntered(true)
 
                 }
             }

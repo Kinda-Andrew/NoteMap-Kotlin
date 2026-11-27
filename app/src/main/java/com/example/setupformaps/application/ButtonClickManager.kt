@@ -4,15 +4,17 @@ import android.animation.ObjectAnimator
 import android.widget.Button
 import com.example.setupformaps.R
 import com.example.setupformaps.databinding.ActivityMainBinding
-import com.example.setupformaps.databinding.ActivityMapsBinding
-import androidx.appcompat.app.AppCompatActivity
 
-class ButtonUIManager(binding: ActivityMainBinding) {
+class ButtonClickManager {
 
-    val noteEntered = false
-    val destinationEntered = false
-   // var bindingMain : ActivityMainBinding = binding
-    private lateinit var binding: ActivityMainBinding
+    private var noteEntered = false
+    private var destinationEntered = false
+
+    fun setNoteEntered(boolean: Boolean){noteEntered = boolean}
+    fun getNoteEntered(): Boolean {return noteEntered}
+
+    fun setDestinationEntered(boolean: Boolean){destinationEntered = boolean}
+    fun getDestinationEntered(): Boolean {return destinationEntered}
 
 
     /**
