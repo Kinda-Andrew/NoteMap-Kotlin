@@ -88,7 +88,8 @@ class HomePageActivity : AppCompatActivity() {
                     /** the ?: is in case the string place.id is null. This should not happen,
                      * but could be a possibility with google places api? this is just safer
                      */
-                    user?.setCommuterDestinationId(place.id?: "");
+                    user?.setCommuterDestinationId(place.id?:"");
+                    user?.setCommuterDestinationName(place.displayName?:"")
                     /**
                      * allow the user to write a note, as a destination has been selected
                      */

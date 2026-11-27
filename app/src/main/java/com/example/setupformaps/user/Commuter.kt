@@ -29,6 +29,8 @@ class Commuter(context: Context) : User() {
 
     private var destinationId : String = ""
 
+    private var destinationName : String = ""
+
     private var shareableCode : String = "";
     @Volatile private var note : String = "";
     private var route : Route? = null;
@@ -43,6 +45,11 @@ class Commuter(context: Context) : User() {
     override fun setCommuterDestinationId(destinationId: String) { this.destinationId = destinationId; }
 
     override fun getCommuterDestinationId(): String { return destinationId; }
+
+    override fun setCommuterDestinationName(destinationName: String) { this.destinationName = destinationName; }
+
+    override fun getCommuterDestinationName(): String { return destinationName; }
+
 
     /**
      * Immediately returns the commuter's last known location.

@@ -34,7 +34,7 @@ class PlacePickerActivity : AppCompatActivity() {
                             //Only need the id,which is used to set the destination
                             listOf(
                                 Place.Field.ID,
-                           //     Place.Field.DISPLAY_NAME,
+                                Place.Field.DISPLAY_NAME,
                           //      Place.Field.LOCATION,
                          //       Place.Field.TYPES,
                             )
@@ -106,7 +106,7 @@ class PlacePickerActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState == null) {
-            val autocompleteIntent = PlaceAutocomplete.IntentBuilder().build(this)
+            val autocompleteIntent = PlaceAutocomplete.IntentBuilder().setInitialQuery(user?.getCommuterDestinationName()).build(this)
             autocompleteLauncher.launch(autocompleteIntent)
         }
     }
