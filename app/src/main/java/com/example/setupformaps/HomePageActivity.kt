@@ -3,6 +3,7 @@ package com.example.setupformaps
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -10,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.setupformaps.application.ButtonClickManager
@@ -22,6 +24,7 @@ import com.google.android.libraries.places.api.model.Place
 
 var user : User? = null;
 var buttonClickManager : ButtonClickManager? = null;
+
 lateinit var CONTEXT : Context;
 
 /**
@@ -36,8 +39,6 @@ class HomePageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-     //   val buttonClickManager = ButtonClickManager();
 
         /**
          * create Commuter object, which stores the users note and destination
@@ -70,22 +71,27 @@ class HomePageActivity : AppCompatActivity() {
          * activity has been completed
          * ie a destination must be set before writing a note
          */
-        initializePlaceButton()
 
-        initializeNoteButton()
+        val sendPlaceButton: Button = findViewById(R.id.place_button_id)
+        val sendNoteButton: Button = findViewById(R.id.note_button_id)
+        val sendNavButton: Button = findViewById(R.id.navigation_button_id)
 
-        initializeNavButton()
+
+        setupPlaceButton(sendPlaceButton,sendNoteButton,sendNavButton)
+        setupNoteButton(sendPlaceButton,sendNoteButton,sendNavButton)
+        setupNavButton(sendPlaceButton,sendNoteButton,sendNavButton)
     }
 
 
-    fun initializePlaceButton(){
+    fun setupPlaceButton(sendPlaceButton: Button,sendNoteButton: Button,sendNavButton: Button){
+
         val placeLauncher = registerForActivityResult(
             StartActivityForResult()
         ) { result: ActivityResult ->
             if (result.resultCode == RESULT_OK) {
                 result.data?.let { intent ->
                     val place: Place = PlacePickerActivity.getPlace(intent)
-                    /** the ?: is in case the string place.id is null. This should not happen,
+                    /** the ?: is in case the string place is null. This should not happen,
                      * but could be a possibility with google places api? this is just safer
                      */
                     user?.setCommuterDestinationId(place.id?:"");
@@ -94,7 +100,7 @@ class HomePageActivity : AppCompatActivity() {
                      * allow the user to write a note, as a destination has been selected
                      */
                     buttonClickManager?.setDestinationEntered(true)
-
+                    evaluateButtonColor(sendPlaceButton,sendNoteButton,sendNavButton)
                 }
             }
         }
@@ -104,32 +110,38 @@ class HomePageActivity : AppCompatActivity() {
          * No isButtonClickable check, as the destination is the first step
          * and should always be clickable
          */
-        val sendPlaceButton: Button = findViewById(R.id.place_button_id)
+
         sendPlaceButton.setOnClickListener {
             val intent = Intent(this, PlacePickerActivity::class.java)
             placeLauncher.launch(intent)
         }
+
+
+        /**
+         * sets the color if the button's activity has been completed or not
+         */
+        evaluateButtonColor(sendPlaceButton,sendNoteButton,sendNavButton)
+
     }
 
-    fun initializeNoteButton(){
+    fun setupNoteButton(sendPlaceButton: Button,sendNoteButton: Button,sendNavButton: Button){
 
         val noteLauncher = registerForActivityResult(
             StartActivityForResult()
         ) { result: ActivityResult ->
-            if (result.resultCode == RESULT_OK) {
-                result.data?.let { intent ->
-                    /**
-                     * handle other result codes? not sure if it is
-                     * needed
-                     * Set noteEntered to true, so the user can proceed
-                     * to navigation
-                     */
+            /**
+             * i dont think the result matters?
+             * all that matters is that the user visited the note page, as the
+             * note is allowed to be empty
+             */
+       //     if (result.resultCode == RESULT_OK) {
                     buttonClickManager?.setNoteEntered(true)
-                }
-            }
+                    evaluateButtonColor(sendPlaceButton,sendNoteButton,sendNavButton)
+
+          //  }
+
         }
 
-        val sendNoteButton: Button = findViewById(R.id.note_button_id)
         sendNoteButton.setOnClickListener {
             /**
              * checks if the user should be allowed to enter a note
@@ -149,13 +161,19 @@ class HomePageActivity : AppCompatActivity() {
                 buttonClickManager?.animateButton(findViewById(R.id.note_button_id))
             }
         }
+
+        /**
+         * set the color of sendNoteButton based on if the user has entered a
+         * destination and a note.
+         */
+        evaluateButtonColor(sendPlaceButton,sendNoteButton,sendNavButton)
+
     }
 
-    fun initializeNavButton(){
+    fun setupNavButton(placeButton: Button, noteButton: Button, sendNavButton: Button){
         /**
          * assigns a button to send the user to the navigation screen
          */
-        val sendNavButton: Button = findViewById(R.id.navigation_button_id)
         sendNavButton.setOnClickListener {
             if (buttonClickManager?.isClickAllowed(findViewById(R.id.navigation_button_id)) == true) {
                 val intent = Intent(this, NavigationActivity::class.java).apply {
@@ -172,6 +190,35 @@ class HomePageActivity : AppCompatActivity() {
             }
         }
     }
+
+    fun setButtonColor(button : Button, id : Int){
+        val color = ContextCompat.getColor(this, id)
+        button.backgroundTintList = ColorStateList.valueOf(color)
+    }
+
+    /**
+     * checks which buttons should be which color, and sets them.
+     */
+    fun evaluateButtonColor(placeButton: Button,noteButton: Button,navButton: Button){
+
+        if(buttonClickManager?.getDestinationEntered() == false){
+            setButtonColor(placeButton,R.color.yellow);
+            setButtonColor(noteButton,R.color.grey);
+            setButtonColor(navButton,R.color.grey);
+
+        }
+        else if(buttonClickManager?.getDestinationEntered() == true && buttonClickManager?.getNoteEntered() == false){
+            setButtonColor(placeButton,R.color.green);
+            setButtonColor(noteButton,R.color.yellow);
+            setButtonColor(navButton,R.color.grey);
+        }
+        else if(buttonClickManager?.getDestinationEntered() == true && buttonClickManager?.getNoteEntered() == true){
+            setButtonColor(placeButton,R.color.green);
+            setButtonColor(noteButton,R.color.green);
+            setButtonColor(navButton,R.color.yellow);
+        }
+    }
+
 }
 
 
