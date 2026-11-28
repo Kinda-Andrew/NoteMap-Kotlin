@@ -1,7 +1,6 @@
 package com.example.setupformaps.user
 
 import android.Manifest
-import android.content.Context
 import android.location.Location
 import android.util.Log
 import androidx.annotation.RequiresPermission
@@ -9,7 +8,6 @@ import com.example.setupformaps.CONTEXT
 import com.example.setupformaps.application.DatabaseManager
 import com.example.setupformaps.application.NavigationManager
 import com.example.setupformaps.application.Notifications
-import com.example.setupformaps.location.Route
 import com.example.setupformaps.user
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -60,7 +58,7 @@ class Commuter() : User() {
         else return route!!.latLngs;
     }
     private fun setRoute(route: RouteSegment?){
-        this.route = route;
+        this.route = route; //route can only be set by the commuter so we are doing this immediately
         database.setRoute(route);
     }
 
@@ -77,9 +75,10 @@ class Commuter() : User() {
     private fun onDestinationChanged(destinationId: String?){
         onRouteEnd();
         if (destinationId != null) {
-            this.destinationId = destinationId;
+            this.destinationId = "destinationId"
             navigator.calculateRoute(this::onRouteStart);
         }
+        else this.destinationId = "";
     }
 
 
