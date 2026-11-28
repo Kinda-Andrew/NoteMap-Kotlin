@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NoteMap</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+
+    <section id="screenRole" class="screen">
+      <h1>NoteMap</h1>
+      <button onclick="chooseRole('commuter')">Commuter</button>
+      <button class="secondary" onclick="chooseRole('caretaker')">Caretaker</button>
+    </section>
+
+    <section id="screenCode" class="screen" hidden>
+      <h2>Pairing code</h2>
+      <p>Generate a code, then give the same code to the other person.</p>
+      <button class="secondary" onclick="makeCode()">Generate code</button>
+      <input id="codeBox" placeholder="Or type a code you were given" autocomplete="off">
+      <button id="continueButton" onclick="goNext()">Continue</button>
+      <p id="codeError" class="error"></p>
+    </section>
+
+    <section id="screenCommuter" class="screen" hidden>
+      <button class="back secondary" onclick="goBack()">Back</button>
+      <h2>Commuter</h2>
+      <div id="warning" role="alert" hidden></div>
+      <div id="mapCommuter" class="map"></div>
+      <p id="myStatus">finding your location...</p>
+
+      <input id="destination" placeholder="Where to? (address or place)">
+      <select id="mode">
+        <option value="WALKING">Walking</option>
+      </select>
+      <input id="routeNote" placeholder="Trip notes">
+      <button id="makeRouteButton" onclick="currentUser.makeRoute()">Make route</button>
+      <button class="secondary" onclick="currentUser.startRoute()">Start route</button>
+      <p id="commuterMessage" role="status"></p>
+
+      <h3>Your trips</h3>
+      <div id="tripList"></div>
+
+      <h3>Notes from caretaker</h3>
+      <div id="notesForCommuter"></div>
+    </section>
+
+    <section id="screenCaretaker" class="screen" hidden>
+      <button class="back secondary" onclick="goBack()">Back</button>
+      <h2>Caretaker</h2>
+      <div id="mapCaretaker" class="map"></div>
+      <p id="commuterStatus">Waiting for the commuter to connect...</p>
+
+      <h3>Commuter's routes</h3>
+      <div id="routeList"></div>
+
+      <h3>Your notes</h3>
+      <input id="newNote" placeholder="Write a note for the commuter">
+      <button onclick="currentUser.addNote()">Send note</button>
+      <p id="noteError" class="error"></p>
+      <div id="caretakerNoteList"></div>
+    </section>
+
+  </main>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEeRc5K8ZU80u7ctut9wn3yb3PAoaHLCQ&v=weekly"></script>
+  <script src="app.js"></script>
+</body>
+</html>

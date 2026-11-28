@@ -1,0 +1,136 @@
+:root {
+  --green: #15b548;
+  --green-dark: #0f8a37;
+  --ink: #1f2a24;
+  --muted: #5d6b63;
+  --background: #eef3f0;
+  --card: #ffffff;
+  --border: #cfdad3;
+  --warning: #dd9333;
+  --error: #b3261e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.4;
+}
+
+main {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 16px 0 8px;
+}
+
+button,
+input,
+select {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 18px;
+}
+
+input,
+select {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--ink);
+}
+
+button {
+  border: none;
+  background: var(--green);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--green-dark);
+}
+
+button.secondary {
+  background: var(--card);
+  border: 2px solid var(--green);
+  color: var(--green-dark);
+}
+
+button.secondary:hover {
+  background: #e3f5e9;
+}
+
+button.back {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 16px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #1b6ef3;
+  outline-offset: 2px;
+}
+
+.map {
+  height: 300px;
+  margin: 12px 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+#warning {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--warning);
+  color: white;
+  font-weight: 600;
+}
+
+.note {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--green);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.note p {
+  margin: 4px 0;
+}
+
+.note p:last-child {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.error {
+  color: var(--error);
+}
+
+[hidden] {
+  display: none !important;
+}
