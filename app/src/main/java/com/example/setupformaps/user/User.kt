@@ -10,5 +10,9 @@ abstract class User {
     public abstract fun getCommuterRoute() : Route?;
     public abstract fun getCommuterLocation() : LatLng?;
     public abstract fun getCommuterLocation(func: (LatLng?) -> Unit);
+    abstract fun setCommuterDestinationId(destinationId: String)
     //get commuter location (probably asynchronously), then do something with it
+    abstract fun getCommuterDestinationId(): String
+    abstract fun setCommuterDestinationName(destinationName: String)
+    abstract fun getCommuterDestinationName(): String
 }

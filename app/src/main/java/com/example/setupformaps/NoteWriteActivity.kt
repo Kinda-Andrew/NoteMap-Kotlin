@@ -1,11 +1,13 @@
 package com.example.setupformaps
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat.enableEdgeToEdge
 import androidx.core.view.WindowInsetsCompat
 
 
@@ -32,8 +34,11 @@ class NoteWriteActivity : AppCompatActivity() {
 
         val saveNote: Button = findViewById(R.id.saveNote)
         saveNote.setOnClickListener {
+            Log.i("Main Activity", "destroy note")
+
             user!!.setCommuterNote(noteInput.getText().toString());
-            onBackPressedDispatcher.onBackPressed()
+            setResult(RESULT_OK)
+            finish()
         }
     }
 

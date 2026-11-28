@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import com.google.android.datatransport.BuildConfig
 import com.google.android.gms.maps.GoogleMap.CameraPerspective
 import com.google.android.libraries.navigation.AudioGuidanceSettings
-import com.google.android.libraries.navigation.ListenableResultFuture
 import com.google.android.libraries.navigation.NavigationApi
 import com.google.android.libraries.navigation.NavigationFragment
 import com.google.android.libraries.navigation.Navigator
@@ -32,9 +31,14 @@ class NavigationActivity : AppCompatActivity() {
 
     private var mLocationPermissionGranted = false
 
+    private var destinationId: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
+
+        //set destinationId. Defaults to computer history museum for now
+        destinationId = intent.getStringExtra("destinationId")?: "ChIJm7NJkla3j4AR8vR-HWRxgOo";
 
         // Initialize the Navigation SDK.
         initializeNavigationSdk()
@@ -98,7 +102,7 @@ class NavigationActivity : AppCompatActivity() {
                     mRoutingOptions?.travelMode(RoutingOptions.TravelMode.WALKING)
 
                     // Navigate to a place, specified by Place ID.
-                    navigateToPlace(COMPUTER_HISTORY_MUSEUM, mRoutingOptions)
+                    navigateToPlace(destinationId, mRoutingOptions)
                 }
 
                 /**
@@ -207,9 +211,6 @@ class NavigationActivity : AppCompatActivity() {
 
     companion object {
         private val TAG: String = NavigationActivity::class.java.getSimpleName()
-
-        // Define the Sydney Opera House by specifying its place ID.
-        private const val COMPUTER_HISTORY_MUSEUM = "ChIJm7NJkla3j4AR8vR-HWRxgOo"
 
         // Set fields for requesting location permission.
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
