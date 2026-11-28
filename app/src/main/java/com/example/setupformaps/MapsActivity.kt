@@ -90,7 +90,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             user!!.getCommuterLocation { pos ->
                 if (pos != null)  mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pos, 16f))
                     // changed to animateCamera so zoom could be added, the higher the zoom the closer it zooms in
-                (user!! as Commuter).onRouteStart() // starts the commuter's update loop
             } //requests commuter location, then moves the camera to that location when it becomes available
         } catch (e: SecurityException){}
     }

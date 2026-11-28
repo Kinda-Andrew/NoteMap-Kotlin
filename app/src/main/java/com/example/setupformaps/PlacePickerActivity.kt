@@ -45,6 +45,7 @@ class PlacePickerActivity : AppCompatActivity() {
                             .fetchPlace(request)
                             .addOnSuccessListener { response ->
                                 setResult(RESULT_OK, Intent().putExtra("PLACE", response.place))
+                                user!!.setCommuterDestinationId(response.place.id);
                                 finish()
                             }
                             .addOnFailureListener { exception ->

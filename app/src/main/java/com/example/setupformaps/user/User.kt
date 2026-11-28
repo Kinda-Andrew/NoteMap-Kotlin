@@ -7,11 +7,11 @@ import com.google.android.gms.maps.model.LatLng
 abstract class User {
     public abstract fun getCommuterNote() : String;
     public abstract fun setCommuterNote(note: String);
-    public abstract fun getCommuterRoute() : Route?;
+    public abstract fun getCommuterRoute() : List<LatLng>?;
     public abstract fun getCommuterLocation() : LatLng?;
     public abstract fun getCommuterLocation(func: (LatLng?) -> Unit);
-    abstract fun setCommuterDestinationId(destinationId: String)
     //get commuter location (probably asynchronously), then do something with it
+    abstract fun setCommuterDestinationId(destinationId: String)
     abstract fun getCommuterDestinationId(): String
     abstract fun setCommuterDestinationName(destinationName: String)
     abstract fun getCommuterDestinationName(): String

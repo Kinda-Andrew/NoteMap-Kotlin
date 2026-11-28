@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.maps.secrets)
+    id("com.google.gms.google-services") //for database
 }
 
 secrets {
@@ -114,7 +115,9 @@ dependencies {
     implementation(libs.datatransport.runtime)
     implementation(libs.joda.time)
 
-
+    // Realtime Database library for Android
+    implementation(platform("com.google.firebase:firebase-bom:35.2.0"))
+    implementation("com.google.firebase:firebase-database")
 
 
     /*

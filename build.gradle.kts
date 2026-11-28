@@ -6,6 +6,7 @@ plugins {
     // (which can read Kotlin 2.4 metadata in Places SDK 6.0.2) instead of AGP's bundled Kotlin 2.2.10.
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.maps.secrets) apply false
+    alias(libs.plugins.google.gms.google.services) apply false
 }
 
 

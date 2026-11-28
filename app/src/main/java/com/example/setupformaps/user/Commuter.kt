@@ -3,25 +3,24 @@ package com.example.setupformaps.user
 import android.Manifest
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import androidx.annotation.RequiresPermission
+import com.example.setupformaps.CONTEXT
+import com.example.setupformaps.application.DatabaseManager
+import com.example.setupformaps.application.NavigationManager
 import com.example.setupformaps.application.Notifications
 import com.example.setupformaps.location.Route
 import com.example.setupformaps.user
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.navigation.Navigator
+import com.google.android.libraries.navigation.RouteSegment
 import java.util.PriorityQueue
 import org.locationtech.jts.geom.Coordinate
 import util.CoordinateMath
 
-class Commuter(context: Context) : User() {
-    private val UPDATE_FREQUENCY = 1000L; // milliseconds
-    private val IDLE_TIMEOUT = 10; // seconds
-    private val IDLE_RADIUS = 25; // meters
-    private val DEVIATION_DISTANCE = 25; // meters
-    private val DEVIATION_NOTIFICATION_FREQUENCY = 10; //seconds
-
-    private var client =  LocationServices.getFusedLocationProviderClient(context);
+class Commuter() : User() {
     @Volatile private var lastLocation : LatLng? = null;
     private var locationSnapshots = PriorityQueue<Location> { o1, o2 -> // sorted oldest to newest
         o1.time.compareTo(o2.time)
@@ -31,24 +30,57 @@ class Commuter(context: Context) : User() {
 
     private var destinationName : String = ""
 
-    private var shareableCode : String = "";
+    private var shareableCode : String = "placeholder";
     @Volatile private var note : String = "";
-    private var route : Route? = null;
+    private var route : RouteSegment? = null;
+
+    private var client =  LocationServices.getFusedLocationProviderClient(CONTEXT);
+    private val database = DatabaseManager(
+        shareableCode,
+        this::onNoteChanged,
+        this::onDestinationChanged,
+        null, // The caretaker is not able to change the route. They can do it indirectly by changing `destination` instead.
+        null // The caretaker also cannot change `lastLocation`
+    );
+    public val navigator = NavigationManager();
 
 
     override fun getCommuterNote(): String { return note; }
+    override fun setCommuterNote(note: String) {
+        database.setNote(note); // update database
+    }
+    private fun onNoteChanged(note: String?){ // update local `note` only when database is updated
+        if (note != null) this.note = note;
+        else this.note = "";
+    }
 
-    override fun setCommuterNote(note: String) { this.note = note; }
 
-    override fun getCommuterRoute(): Route? { return route; }
+    override fun getCommuterRoute(): List<LatLng>? {
+        if (route == null) return null;
+        else return route!!.latLngs;
+    }
+    private fun setRoute(route: RouteSegment?){
+        this.route = route;
+        database.setRoute(route);
+    }
 
-    override fun setCommuterDestinationId(destinationId: String) { this.destinationId = destinationId; }
+
+    override fun setCommuterDestinationId(destinationId: String) {
+        database.setDestination(destinationId);
+    }
 
     override fun getCommuterDestinationId(): String { return destinationId; }
 
     override fun setCommuterDestinationName(destinationName: String) { this.destinationName = destinationName; }
 
     override fun getCommuterDestinationName(): String { return destinationName; }
+    private fun onDestinationChanged(destinationId: String?){
+        onRouteEnd();
+        if (destinationId != null) {
+            this.destinationId = destinationId;
+            navigator.calculateRoute(this::onRouteStart);
+        }
+    }
 
 
     /**
@@ -84,7 +116,11 @@ class Commuter(context: Context) : User() {
      *
      * This function should be called when a route is started.
      * */
-    public fun onRouteStart(){
+    public fun onRouteStart(navigator: Navigator){
+        Log.d("routeDebug", "onRouteStart()");
+        this.setRoute(navigator.currentRouteSegment);
+        navigator.startGuidance() // Start turn-by-turn guidance along the current route.
+
         isRunning = true;
         Thread{
             try {
@@ -134,6 +170,10 @@ class Commuter(context: Context) : User() {
                 idleNotificationTimestamp = time; // notify every `IDLE_TIMEOUT` seconds
             }
 
+            try { //DEBUGGING
+                deviationNotifications.sendNotification("Distance", "${distanceFromRoute()}");
+            } catch (e: SecurityException) {}
+
             if (time - deviationNotificationTimestamp >= DEVIATION_NOTIFICATION_FREQUENCY*1000 && distanceFromRoute() > DEVIATION_DISTANCE){
                 try {
                     deviationNotifications.sendNotification("You're going the wrong way!", "Please return to the route.");
@@ -141,15 +181,27 @@ class Commuter(context: Context) : User() {
                 deviationNotificationTimestamp = time; // notify every `DEVIATION_NOTIFICATION_FREQUENCY` seconds
             }
 
-            client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
-                if (location == null) return@addOnSuccessListener
-                lastLocation = LatLng(location.latitude, location.longitude)
-                synchronized(locationSnapshots){
-                    locationSnapshots.add(location)
-                }
-            }
+            updateLocation();
 
             Thread.sleep(UPDATE_FREQUENCY);
+        }
+    }
+
+    /**
+     * Attempts to update the commuter's location snapshots and last known location.
+     *
+     * The user's last known location is written to the database.
+     * */
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    private fun updateLocation(){
+        client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
+            if (location == null) return@addOnSuccessListener
+            lastLocation = LatLng(location.latitude, location.longitude)
+            synchronized(locationSnapshots){
+                locationSnapshots.add(location)
+            }
+
+            database.setLastLocation(lastLocation);
         }
     }
 
@@ -186,7 +238,7 @@ class Commuter(context: Context) : User() {
      * */
     private fun distanceFromRoute() : Double{
         if (route == null || lastLocation == null) return Double.NaN; // `Double.NaN` fails any comparison
-        val points = route!!.getRoute();
+        val points = route!!.latLngs;
         val reference = lastLocation!!;
 
         var min = Double.POSITIVE_INFINITY
@@ -199,6 +251,15 @@ class Commuter(context: Context) : User() {
             start = end;
         }
 
+        Log.d("distanceDebug", "dist: $min");
         return min;
+    }
+
+    companion object {
+        private val UPDATE_FREQUENCY = 1000L; // milliseconds
+        private val IDLE_TIMEOUT = 5 * 60; // seconds
+        private val IDLE_RADIUS = 25; // meters
+        private val DEVIATION_DISTANCE = 20; // meters
+        private val DEVIATION_NOTIFICATION_FREQUENCY = 10; //seconds
     }
 }

@@ -40,12 +40,9 @@ class HomePageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        /**
-         * create Commuter object, which stores the users note and destination
-         */
-        if (user == null) user = Commuter(this);
-        if (buttonClickManager == null) buttonClickManager = ButtonClickManager();
         CONTEXT = applicationContext;
+        if (user == null) user = Commuter();
+        if (buttonClickManager == null) buttonClickManager = ButtonClickManager();
 
         Permissions.request(Manifest.permission.POST_NOTIFICATIONS, 0, this)
 
