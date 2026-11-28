@@ -2,15 +2,30 @@ package com.example.setupformaps
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat.requestLocationUpdates
 import com.google.android.datatransport.BuildConfig
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.GoogleMap.CameraPerspective
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.navigation.AudioGuidanceSettings
 import com.google.android.libraries.navigation.NavigationApi
 import com.google.android.libraries.navigation.NavigationFragment
@@ -18,6 +33,7 @@ import com.google.android.libraries.navigation.Navigator
 import com.google.android.libraries.navigation.RoutingOptions
 import com.google.android.libraries.navigation.SimulationOptions
 import com.google.android.libraries.navigation.Waypoint
+import com.google.maps.android.PolyUtil
 
 
 /**
@@ -33,6 +49,52 @@ class NavigationActivity : AppCompatActivity() {
 
     private var destinationId: String = ""
 
+
+    // Location & Deviation tracking state
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var activeRoutePoints: List<LatLng> = emptyList()
+    private var isCurrentlyDeviated = false
+
+    private val routeChangedListener = Navigator.RouteChangedListener {
+        activeRoutePoints = mNavigator?.currentRouteSegment?.latLngs ?: emptyList()
+        isCurrentlyDeviated = false
+        //throw deviation notification here?
+
+        Log.i("NavActivity", "route deviation detected. route changed listener")
+
+    }
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult) {
+
+
+            mNavigator?.simulator?.setUserLocation(LatLng(
+                37.44, -122.08
+            ))
+
+            val location = result.lastLocation ?: return
+            if (activeRoutePoints.isEmpty()) return
+
+            // Filter out noisy GPS readings less accurate than 15m
+            if (location.hasAccuracy() && location.accuracy > 15f) return
+
+            val userLatLng = LatLng(location.latitude, location.longitude)
+            val isOnRoute = PolyUtil.isLocationOnPath(
+                userLatLng,
+                activeRoutePoints,
+                true, // geodesic
+                15.0  // 15-meter tolerance
+            )
+
+            if (!isOnRoute && !isCurrentlyDeviated) {
+                isCurrentlyDeviated = true
+                sendDeviationNotification()
+            } else if (isOnRoute && isCurrentlyDeviated) {
+                isCurrentlyDeviated = false
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
@@ -42,7 +104,25 @@ class NavigationActivity : AppCompatActivity() {
 
         // Initialize the Navigation SDK.
         initializeNavigationSdk()
+
+        //initialize tracker for route deviation
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+
     }
+
+    override fun onDestroy() {
+        stopLocationTracking()
+        mNavigator?.removeRouteChangedListener(routeChangedListener)
+        mNavigator?.stopGuidance()
+        super.onDestroy()
+        //restart app here? the user isnt really expected to do anything else
+        //after finished navigation.
+        //UNLESS this gets destroyed while app is closed/phone is off.
+        //then i dont know what to do.
+    }
+
+
 
     /**
      * Starts the Navigation SDK and sets the camera to follow the device's location. Calls the
@@ -101,6 +181,8 @@ class NavigationActivity : AppCompatActivity() {
                     mRoutingOptions = RoutingOptions()
                     mRoutingOptions?.travelMode(RoutingOptions.TravelMode.WALKING)
 
+                    mNavigator?.addRouteChangedListener(routeChangedListener)
+
                     // Navigate to a place, specified by Place ID.
                     navigateToPlace(destinationId, mRoutingOptions)
                 }
@@ -147,7 +229,9 @@ class NavigationActivity : AppCompatActivity() {
         }
 
         // Create a future to await the result of the asynchronous navigator task.
-        mNavigator?.setDestination(destination, travelMode) { routeDescription ->
+        mNavigator?.setDestination(destination, travelMode) @androidx.annotation.RequiresPermission(
+            allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION]
+        ) { routeDescription ->
             when (routeDescription.routeStatus) {
                 Navigator.RouteStatus.OK -> {
                     // Hide the toolbar to maximize the navigation UI.
@@ -162,14 +246,32 @@ class NavigationActivity : AppCompatActivity() {
                     mNavigator?.setAudioGuidanceSettings(audioSettings)
 
                     // Simulate vehicle progress along the route for demo/debug builds.
-                    if (BuildConfig.DEBUG) {
-                        mNavigator?.simulator?.simulateLocationsAlongExistingRoute(
-                            SimulationOptions().speedMultiplier(5f)
-                        )
-                    }
+        //            if (BuildConfig.DEBUG) {
+                   //     mNavigator?.simulator?.simulateLocationsAlongExistingRoute(
+                 //           SimulationOptions().speedMultiplier(5f)
+                     //   )
+               //     }
+
+                //    mNavigator?.simulator?.setUserLocation(LatLng(
+               //         37.421806, -122.076620
+              //      ))
 
                     // Start turn-by-turn guidance along the current route.
                     mNavigator!!.startGuidance()
+               //     requestLocationUpdates()
+
+                    isCurrentlyDeviated = false
+                    try {
+                        startLocationTracking()
+                    }
+                    catch (e : SecurityException){
+                        //do something, shouldnt have happened at this point
+                        //but i guess its mandatory.
+                    }
+                    mNavigator?.simulator?.setUserLocation(LatLng(
+                        37.421806, -122.076620
+                    ))
+
                 }
 
                 Navigator.RouteStatus.NO_ROUTE_FOUND -> displayMessage("Error starting navigation: No route found.")
@@ -179,6 +281,28 @@ class NavigationActivity : AppCompatActivity() {
                 else -> displayMessage("Error starting navigation: ${routeDescription.routeStatus}")
             }
         }
+    }
+
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    private fun startLocationTracking() {
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            2000L // Check every 2 seconds
+        ).build()
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
+    private fun stopLocationTracking() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun sendDeviationNotification() {
+        Log.i("NavActivity", "route deviation detected")
     }
 
     /** Handles the result of the request for location permissions.  */
