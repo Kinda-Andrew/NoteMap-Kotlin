@@ -1,7 +1,5 @@
 package com.example.setupformaps.user
 
-import com.example.setupformaps.location.Route
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 
 abstract class User {

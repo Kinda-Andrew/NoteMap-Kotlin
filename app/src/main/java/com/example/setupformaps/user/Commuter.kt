@@ -25,10 +25,9 @@ class Commuter() : User() {
     } // Snapshots older than `IDLE_TIMEOUT` should be discarded using `poll()`
 
     private var destinationId : String = ""
-
     private var destinationName : String = ""
 
-    private var shareableCode : String = "placeholder";
+    private var shareableCode : String = "placeholder"; //used as the key to your data in the database
     @Volatile private var note : String = "";
     private var route : RouteSegment? = null;
 
@@ -43,35 +42,80 @@ class Commuter() : User() {
     public val navigator = NavigationManager();
 
 
+    /**
+     * Returns the locally stored commuter's note.
+     *
+     * @return Commuter's note
+     * */
     override fun getCommuterNote(): String { return note; }
+
+    /**
+     * Updates the `note` field in the database.
+     *
+     * @param note The new note
+     * */
     override fun setCommuterNote(note: String) {
         database.setNote(note); // update database
     }
+
+    /**
+     * Function to be called when the `note` field in the database changes.
+     *
+     * Updates `this.note`.
+     *
+     * @param note The new value of `note` in the database
+     * */
     private fun onNoteChanged(note: String?){ // update local `note` only when database is updated
         if (note != null) this.note = note;
         else this.note = "";
     }
 
 
+    /**
+     * Returns the commuter's route.
+     *
+     * @return The commuter's route as a list of latitude and longitude coordinates.
+     * */
     override fun getCommuterRoute(): List<LatLng>? {
         if (route == null) return null;
         else return route!!.latLngs;
     }
+
+    /**
+     * Sets the commuter's route.
+     *
+     * @param route The `RouteSegment` representing the user's current route
+     * */
     private fun setRoute(route: RouteSegment?){
         this.route = route; //route can only be set by the commuter so we are doing this immediately
         database.setRoute(route);
     }
 
 
+    /**
+     * Updates the `destination` field in the database.
+     *
+     * @param destinationId The Google Maps placeID of the destination
+     * */
     override fun setCommuterDestinationId(destinationId: String) {
         database.setDestination(destinationId);
     }
 
+    /**
+     * Returns the locally stored destination ID.
+     *
+     * @return Destination ID
+     * */
     override fun getCommuterDestinationId(): String { return destinationId; }
 
-    override fun setCommuterDestinationName(destinationName: String) { this.destinationName = destinationName; }
-
-    override fun getCommuterDestinationName(): String { return destinationName; }
+    /**
+     * Function to be called when the `destination` field in the database changes.
+     *
+     * Sets the local `destinationId`, attempts to calculate the new route and update the `route`
+     * field in the database for the caretaker's use.
+     *
+     * @param destinationId The new destination ID.
+     * */
     private fun onDestinationChanged(destinationId: String?){
         onRouteEnd();
         if (destinationId != null) {
@@ -80,6 +124,11 @@ class Commuter() : User() {
         }
         else this.destinationId = "";
     }
+
+
+    override fun setCommuterDestinationName(destinationName: String) { this.destinationName = destinationName; }
+
+    override fun getCommuterDestinationName(): String { return destinationName; }
 
 
     /**
